@@ -1,0 +1,107 @@
+:root {
+  --bg-fondo: #0f172a;      /* Azul muy oscuro */
+  --bg-tarjeta: #1e293b;    /* Azul grisáceo */
+  --color-primario: #6366f1; /* Índigo */
+  --color-primario-hover: #4f46e5;
+  --color-exito: #10b981;   /* Verde esmeralda */
+  --color-exito-hover: #059669;
+  --color-alerta: #eab308;  /* Amarillo */
+  --color-alerta-hover: #ca8a04;
+  --color-peligro: #ef4444; /* Rojo */
+  --texto-principal: #f8fafc;
+  --texto-secundario: #94a3b8;
+  --borde: #334155;
+}
+
+body {
+  background-color: var(--bg-fondo);
+  color: var(--texto-principal);
+  font-family: system-ui, -apple-system, sans-serif;
+  margin: 0;
+  padding: 20px;
+}
+
+.contenedor {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+h1, h2 { color: var(--texto-principal); }
+
+/* Tarjetas (Secciones) */
+.tarjeta {
+  background: var(--bg-tarjeta);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--borde);
+}
+
+/* Formularios */
+.formulario { display: flex; gap: 12px; flex-wrap: wrap; }
+.form-columna { display: flex; flex-direction: column; gap: 12px; flex: 1; }
+.grupo-input { display: flex; flex-direction: column; flex: 1; min-width: 150px; }
+.grupo-input label { font-size: 0.85em; color: var(--texto-secundario); margin-bottom: 6px; }
+
+input, select, textarea {
+  background: var(--bg-fondo);
+  color: var(--texto-principal);
+  border: 1px solid var(--borde);
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+input:focus, select:focus, textarea:focus { border-color: var(--color-primario); }
+
+/* Botones */
+button {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: white;
+}
+.btn-primario { background-color: var(--color-primario); }
+.btn-primario:hover { background-color: var(--color-primario-hover); }
+
+.btn-exito { background-color: var(--color-exito); }
+.btn-exito:hover { background-color: var(--color-exito-hover); }
+
+.btn-alerta { background-color: var(--color-alerta); color: #000; }
+.btn-alerta:hover { background-color: var(--color-alerta-hover); }
+
+.btn-peligro { background-color: var(--color-peligro); }
+.btn-peligro:hover { background-color: #dc2626; }
+
+.btn-inactivo { background-color: transparent; border: 1px solid var(--borde); color: var(--texto-secundario); }
+
+/* Barra de Navegación */
+.nav-bar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  background: var(--bg-tarjeta);
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid var(--borde);
+}
+
+/* Cuadrícula de Menú */
+.grid-menu {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 16px;
+}
+.item-menu {
+  background: var(--bg-fondo);
+  border: 1px solid var(--borde);
+  padding: 16px;
+  border-radius: 10px;
+}
+.item-menu strong { color: var(--color-primario); font-size: 1.1em; }
+.item-menu span { float: right; font-weight: bold; color: var(--color-exito); }
