@@ -335,6 +335,6 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
   if (session) {
     const { data: adminData } = await supabase.from('ADMINISTRADOR').select('*').eq('usuario', session.user.email);
     esAdmin = (adminData && adminData.length > 0);
-    arrancarApp(); prueba 2
+    arrancarApp();
   } 
 });
