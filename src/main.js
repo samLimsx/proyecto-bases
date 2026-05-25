@@ -16,8 +16,8 @@ document.querySelector('#app').innerHTML = `
     <section id="seccion-login" class="tarjeta" style="max-width: 400px; margin: 0 auto;">
       <h2 style="text-align: center; margin-top: 0; color: var(--neon-turquesa);">Acceso al Sistema</h2>
       <form id="form-login" class="form-columna">
-        <input type="email" name="email" placeholder="Correo electrónico" required>
-        <input type="password" name="password" placeholder="Contraseña" required>
+        <input type="email" name="email" placeholder="Correo electrónico (Ej. admin@escom.mx)" required>
+        <input type="password" name="password" placeholder="Contraseña (Ej. admin123)" required>
         <button type="submit" class="btn-primario" style="margin-top: 10px;">Iniciar Sesión</button>
       </form>
     </section>
@@ -105,31 +105,31 @@ document.querySelector('#app').innerHTML = `
 
       <div id="vista-personal" style="display: none;">
         <section class="tarjeta">
-          <h2 style="margin-top: 0; color: var(--neon-turquesa);">Alta de Cuentas y Personal</h2>
-          <p style="font-size: 0.85em; color: var(--texto-sec); margin-top: -10px;">Registra a los empleados y asígnales credenciales de acceso al sistema.</p>
+          <h2 style="margin-top: 0; color: var(--neon-turquesa);">Control de Cuentas y Empleados</h2>
+          <p style="font-size: 0.85em; color: var(--texto-sec); margin-top: -10px;">Registra o edita los accesos de tu equipo.</p>
           <form id="form-empleado" class="form-columna">
             <div style="display: flex; gap: 12px; flex-wrap: wrap;">
               <div class="grupo-input" style="flex: 2;">
                 <label>Nombre Completo</label>
-                <input type="text" name="nombre" placeholder="Ej. Ana Pérez" required>
+                <input type="text" name="nombre" id="input-nombre" placeholder="Ej. Ana Pérez" required>
               </div>
               <div class="grupo-input" style="flex: 2;">
-                <label>Correo Electrónico (Para Login)</label>
-                <input type="email" name="email" placeholder="mesero@escom.ipn.mx" required>
+                <label>Correo Electrónico (Login)</label>
+                <input type="email" name="email" id="input-email" placeholder="mesero@restaurante.com" required>
               </div>
             </div>
             
             <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
               <div class="grupo-input" style="flex: 2;">
-                <label>Contraseña (Mínimo 6 caracteres)</label>
-                <input type="password" name="password" placeholder="******" required minlength="6">
+                <label>Contraseña</label>
+                <input type="text" name="password" id="input-password" placeholder="******" required>
               </div>
               <div style="flex: 1; display: flex; align-items: center; gap: 10px; margin-top: 20px; background: rgba(255, 56, 96, 0.1); padding: 10px; border-radius: 8px; border: 1px solid var(--neon-rojo);">
-                <input type="checkbox" name="es_admin" id="es_admin" style="width: 20px; height: 20px; cursor: pointer;">
-                <label for="es_admin" style="color: var(--neon-rojo); cursor: pointer; margin: 0;">¿Hacer Administrador?</label>
+                <input type="checkbox" name="es_admin" id="input-admin" style="width: 20px; height: 20px; cursor: pointer;">
+                <label for="input-admin" style="color: var(--neon-rojo); cursor: pointer; margin: 0;">Es Administrador</label>
               </div>
             </div>
-            <button type="submit" class="btn-exito" style="margin-top: 15px;">Crear Cuenta en Base de Datos</button>
+            <button type="submit" id="btn-guardar-empleado" class="btn-exito" style="margin-top: 15px;">➕ Guardar Empleado</button>
           </form>
         </section>
         <section class="tarjeta">
@@ -307,48 +307,73 @@ document.getElementById('btn-cobrar').addEventListener('click', async () => {
   cargarInventario();
 });
 
+// ==========================================
+// 4. MÓDULOS DE ADMINISTRACIÓN (PERSONAL Y EDICIÓN)
+// ==========================================
+window.empleadoEditandoId = null;
+
 async function cargarEmpleados() {
   const { data } = await supabase.from('EMPLEADO').select('*').order('id_empleado', { ascending: true });
   if (data) {
     document.getElementById('select-mesero-turno').innerHTML = data.map(e => `<option value="${e.id_empleado}">${e.nombre}</option>`).join('');
-    document.getElementById('lista-empleados').innerHTML = data.map(e => `<div class="item-menu" style="border-left: 4px solid var(--neon-turquesa); display: flex; justify-content: space-between; align-items: center;"><strong style="color: white; font-size: 1.1em;">🤵 ${e.nombre}</strong><button onclick="eliminarEmpleado(${e.id_empleado})" class="btn-peligro" style="padding: 5px 10px; font-size: 0.8em;">🗑️ Borrar</button></div>`).join('');
+    
+    document.getElementById('lista-empleados').innerHTML = data.map(e => `
+      <div class="item-menu" style="border-left: 4px solid var(--neon-turquesa); display: flex; flex-direction: column; gap: 10px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <strong style="color: white; font-size: 1.1em;">🤵 ${e.nombre} <span style="font-size: 0.7em; color: var(--neon-naranja);">(${e.rol || 'Mesero'})</span></strong>
+          <div style="display: flex; gap: 5px;">
+            <button onclick="prepararEdicion(${e.id_empleado}, '${e.nombre}', '${e.email || ''}', '${e.password || ''}', '${e.rol}')" class="btn-alerta" style="padding: 5px 10px; font-size: 0.8em;">✏️ Editar</button>
+            <button onclick="eliminarEmpleado(${e.id_empleado})" class="btn-peligro" style="padding: 5px 10px; font-size: 0.8em;">🗑️</button>
+          </div>
+        </div>
+        <div style="font-size: 0.85em; color: var(--texto-sec); background: rgba(0,0,0,0.3); padding: 5px; border-radius: 4px;">
+          📧 ${e.email || 'Sin correo'} | 🔑 ${e.password || 'Sin clave'}
+        </div>
+      </div>
+    `).join('');
   }
+}
+
+window.prepararEdicion = function(id, nombre, email, password, rol) {
+  window.empleadoEditandoId = id;
+  document.getElementById('input-nombre').value = nombre;
+  document.getElementById('input-email').value = email;
+  document.getElementById('input-password').value = password;
+  document.getElementById('input-admin').checked = (rol === 'Admin');
+  
+  const btn = document.getElementById('btn-guardar-empleado');
+  btn.innerText = "💾 Actualizar Empleado";
+  btn.classList.replace('btn-exito', 'btn-alerta');
+  btn.scrollIntoView({ behavior: 'smooth' });
 }
 
 document.getElementById('form-empleado').addEventListener('submit', async (e) => {
   e.preventDefault(); 
   const f = new FormData(e.target);
-  const nombre = f.get('nombre');
-  const email = f.get('email');
-  const password = f.get('password');
-  const esAdmin = f.get('es_admin') === 'on';
+  const dataForm = {
+    nombre: f.get('nombre'),
+    email: f.get('email'),
+    password: f.get('password'),
+    rol: f.get('es_admin') === 'on' ? 'Admin' : 'Mesero'
+  };
 
-  const btn = e.target.querySelector('button');
-  btn.innerText = "⏳ Creando cuenta..."; 
-  btn.disabled = true;
+  const btn = document.getElementById('btn-guardar-empleado');
+  btn.innerText = "⏳ Guardando..."; btn.disabled = true;
 
-  const { data: authData, error: authError } = await supabase.auth.signUp({ email: email, password: password });
-  
-  if (authError) {
-    alert("❌ Error de Seguridad: " + authError.message);
-    btn.innerText = "Crear Cuenta en Base de Datos"; 
-    btn.disabled = false; 
-    return;
+  if (window.empleadoEditandoId) {
+    const { error } = await supabase.from('EMPLEADO').update(dataForm).eq('id_empleado', window.empleadoEditandoId);
+    if(error) alert("Error: " + error.message); else alert("✅ Empleado actualizado");
+    window.empleadoEditandoId = null;
+    btn.classList.replace('btn-alerta', 'btn-exito');
+  } else {
+    const { error } = await supabase.from('EMPLEADO').insert([dataForm]);
+    if(error) alert("Error: " + error.message); else alert("✅ Empleado registrado");
   }
 
-  const { data: empData, error: empError } = await supabase.from('EMPLEADO').insert([{ nombre: nombre }]).select();
-  
-  if (esAdmin && empData && empData.length > 0) {
-    await supabase.from('ADMINISTRADOR').insert([{ id_empleado: empData[0].id_empleado, usuario: email }]);
-  }
-
-  alert("✅ ¡Cuenta creada exitosamente! Tu sesión de Administrador se cerrará ahora.");
-  
   e.target.reset(); 
-  btn.innerText = "Crear Cuenta en Base de Datos"; 
+  btn.innerText = "➕ Guardar Empleado"; 
   btn.disabled = false;
   cargarEmpleados();
-  document.getElementById('btn-logout').click();
 });
 
 window.eliminarEmpleado = async function(id) {
@@ -438,15 +463,23 @@ document.getElementById('btn-generar-reporte').addEventListener('click', async (
 document.querySelector('#form-login').addEventListener('submit', async (e) => {
   e.preventDefault(); 
   const emailInput = e.target.email.value;
-  const { error } = await supabase.auth.signInWithPassword({ email: emailInput, password: e.target.password.value });
-  if (error) { alert("Credenciales incorrectas"); return; }
-  const { data: adminData } = await supabase.from('ADMINISTRADOR').select('*').eq('usuario', emailInput);
-  esAdmin = (adminData && adminData.length > 0);
+  const passInput = e.target.password.value;
+  
+  const { data, error } = await supabase.from('EMPLEADO').select('*').eq('email', emailInput).eq('password', passInput);
+  
+  if (error || !data || data.length === 0) { 
+    alert("❌ Credenciales incorrectas o usuario inexistente"); 
+    return; 
+  }
+  
+  const usuarioActivo = data[0];
+  localStorage.setItem('pos_user', JSON.stringify(usuarioActivo));
+  esAdmin = (usuarioActivo.rol === 'Admin');
   arrancarApp();
 });
 
-document.getElementById('btn-logout').addEventListener('click', async () => { 
-  await supabase.auth.signOut(); 
+document.getElementById('btn-logout').addEventListener('click', () => { 
+  localStorage.removeItem('pos_user');
   document.getElementById('seccion-login').style.display = 'block'; 
   document.getElementById('seccion-sistema').style.display = 'none'; 
 });
@@ -454,6 +487,7 @@ document.getElementById('btn-logout').addEventListener('click', async () => {
 function arrancarApp() {
   document.getElementById('seccion-login').style.display = 'none'; 
   document.getElementById('seccion-sistema').style.display = 'block';
+  
   if (esAdmin) { 
     document.getElementById('nav-menu').style.display = 'block'; 
     document.getElementById('nav-inventario').style.display = 'block'; 
@@ -472,10 +506,9 @@ function arrancarApp() {
   activarWebSocketsCocina();
 }
 
-supabase.auth.getSession().then(async ({ data: { session } }) => { 
-  if (session) {
-    const { data: adminData } = await supabase.from('ADMINISTRADOR').select('*').eq('usuario', session.user.email);
-    esAdmin = (adminData && adminData.length > 0); 
-    arrancarApp(); 
-  } 
-});
+const sesionGuardada = localStorage.getItem('pos_user');
+if (sesionGuardada) {
+  const usuarioActivo = JSON.parse(sesionGuardada);
+  esAdmin = (usuarioActivo.rol === 'Admin');
+  arrancarApp();
+}
