@@ -6,9 +6,6 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 
 const supabase = createClient(supabaseUrl, supabaseKey)
 
-// ==========================================
-// 1. ESTRUCTURA HTML DE LA PÁGINA
-// ==========================================
 document.querySelector('#app').innerHTML = `
   <div class="contenedor">
     <div class="header-titulo">
@@ -31,6 +28,7 @@ document.querySelector('#app').innerHTML = `
         <button id="nav-cocina" class="btn-inactivo" style="flex: 1; min-width: 100px;">Cocina 👨‍🍳</button>
         <button id="nav-menu" class="btn-inactivo" style="flex: 1; min-width: 100px;">Recetas 📋</button>
         <button id="nav-inventario" class="btn-inactivo" style="flex: 1; min-width: 100px;">Almacén 📦</button>
+        <button id="nav-personal" class="btn-inactivo" style="flex: 1; min-width: 100px;">Personal 👥</button>
         <button id="nav-reportes" class="btn-inactivo" style="flex: 1; min-width: 100px;">Finanzas 📊</button>
         <button id="btn-logout" class="btn-peligro" style="min-width: 100px;">Salir</button>
       </nav>
@@ -38,32 +36,40 @@ document.querySelector('#app').innerHTML = `
       <div id="vista-pedidos">
         
         <section class="tarjeta">
-          <h2 style="margin-top: 0; color: var(--neon-turquesa);">📍 Mapa Interactivo del Salón</h2>
-          <p style="font-size: 0.85em; color: var(--texto-sec); margin-top: -10px;">Haz clic en una mesa verde para abrir cuenta, o en una roja para gestionarla.</p>
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 15px;">
+            <div>
+              <h2 style="margin: 0; color: var(--neon-turquesa);">📍 Mapa Interactivo del Salón</h2>
+              <p style="font-size: 0.85em; color: var(--texto-sec); margin: 5px 0 0 0;">Haz clic en una mesa para abrirla o gestionarla.</p>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px; background: rgba(15, 240, 252, 0.1); padding: 10px 15px; border-radius: 8px; border: 1px solid var(--neon-turquesa);">
+              <span style="font-size: 1.5em;">🤵</span>
+              <div>
+                <label style="display: block; color: var(--neon-turquesa); font-size: 0.7em;">MESERO EN TURNO:</label>
+                <select id="select-mesero-turno" style="background: transparent; border: none; color: white; font-weight: bold; padding: 0; cursor: pointer; outline: none;"></select>
+              </div>
+            </div>
+          </div>
           <div id="mapa-mesas" class="grid-mesas"></div>
         </section>
 
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
-          
           <section class="tarjeta" id="zona-agregar-platillo">
-            <h2 style="margin-top: 0; color: var(--neon-naranja);">Agregar Consumo</h2>
-            <form id="form-detalle" class="form-columna">
-              <div class="grupo-input"><label>Folio Activo</label><select id="select-folios" name="folio_pedido" required></select></div>
-              <div class="grupo-input"><label>Platillo</label><select id="select-platillos" name="id_platillo" required></select></div>
-              <div class="grupo-input"><label>Cantidad</label><input type="number" name="cantidad" value="1" min="1" required></div>
-              <button type="submit" class="btn-alerta">+ Enviar a Cocina</button>
-            </form>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <h2 style="margin: 0; color: var(--neon-naranja);">Agregar Consumo</h2>
+              <select id="select-folios" style="background: rgba(255, 184, 108, 0.1); border: 1px solid var(--neon-naranja); color: var(--neon-naranja); padding: 5px 10px;"></select>
+            </div>
+            <p style="font-size: 0.85em; color: var(--texto-sec);">Toca un platillo para enviarlo directamente a la mesa activa.</p>
+            <div id="grid-platillos-pos" class="grid-pos"></div>
           </section>
 
           <section class="tarjeta" id="zona-ticket">
             <h2 style="margin-top: 0; color: var(--neon-cyan);">Caja y Ticket</h2>
             <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-              <select id="select-ticket-folio" style="flex: 1;"></select>
-              <button id="btn-ver-ticket" class="btn-primario">Consultar</button>
+              <select id="select-ticket-folio" style="flex: 1; display: none;"></select>
+              <button id="btn-ver-ticket" class="btn-primario" style="width: 100%;">Refrescar Ticket Actual</button>
+              <button id="btn-imprimir" class="btn-primario" style="display: none;">📄 PDF</button>
             </div>
-            
-            <div id="ticket-contenido" style="background: white; color: black; padding: 20px; border-radius: 8px; font-family: monospace; font-size: 1.1em; display: none; margin-bottom: 15px; border: 2px dashed #ccc;"></div>
-
+            <div id="ticket-contenido" style="background: white; color: black; padding: 20px; border-radius: 8px; display: none; margin-bottom: 15px;"></div>
             <div id="zona-cobro" style="display: none; background: rgba(1, 6, 18, 0.5); padding: 15px; border-radius: 8px; border: 1px solid var(--neon-cyan);">
               <label style="display: block; font-size: 0.85em; color: var(--neon-cyan); margin-bottom: 8px;">Liquidación de Cuenta</label>
               <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
@@ -79,45 +85,46 @@ document.querySelector('#app').innerHTML = `
       
       <div id="vista-menu" style="display: none;">
         <section class="tarjeta">
-          <h2 style="color: var(--neon-turquesa);">Crear Platillo</h2>
+          <h2 style="color: var(--neon-turquesa);">✨ Agregar Nuevo Platillo</h2>
           <form id="form-platillo" class="form-columna">
-            <input type="text" name="nombre" placeholder="Nombre" required><textarea name="descripcion" placeholder="Descripción" required rows="2"></textarea>
-            <div style="display: flex; gap: 12px;"><input type="number" step="0.01" name="precio" placeholder="Precio ($)" required style="flex: 1;"><select name="categoria" style="flex: 1;"><option value="Entradas">Entradas</option><option value="Plato Fuerte">Plato Fuerte</option></select></div>
-            <button type="submit" class="btn-primario">Guardar Platillo</button>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap;"><div class="grupo-input" style="flex: 2;"><input type="text" name="nombre" placeholder="Nombre (Ej. Tacos)" required></div><div class="grupo-input" style="flex: 1;"><select name="categoria" required><option value="" disabled selected>Categoría...</option><option value="Entradas">🥗 Entradas</option><option value="Plato Fuerte">🌮 Plato Fuerte</option><option value="Bebidas">🍹 Bebidas</option><option value="Postres">🍰 Postres</option></select></div></div>
+            <textarea name="descripcion" placeholder="Descripción breve..." required rows="2"></textarea><div class="grupo-input" style="width: 50%;"><input type="number" step="0.01" name="precio" placeholder="Precio ($)" required></div>
+            <button type="submit" class="btn-primario" style="margin-top: 5px;">Guardar Platillo</button>
           </form>
         </section>
-        <section class="tarjeta" style="border-color: var(--neon-naranja);">
-          <h2 style="margin-top: 0; color: var(--neon-naranja);">Ficha Técnica (Asignar Ingredientes)</h2>
-          <form id="form-receta" class="formulario" style="align-items: flex-end;">
-            <div class="grupo-input" style="flex: 2;"><label>Platillo</label><select id="select-receta-platillo" name="id_platillo" required></select></div>
-            <div class="grupo-input" style="flex: 2;"><label>Ingrediente del Almacén</label><select id="select-receta-ingrediente" name="id_componente" required></select></div>
-            <div class="grupo-input" style="flex: 1;"><label>Cant. por porción</label><input type="number" step="0.01" name="cantidad" placeholder="Ej. 1.5" required></div>
-            <button type="submit" class="btn-alerta">Vincular</button>
-          </form>
-        </section>
+        <section class="tarjeta" style="border-color: var(--neon-naranja);"><h2 style="margin-top: 0; color: var(--neon-naranja);">Ficha Técnica (Ingredientes)</h2><form id="form-receta" class="formulario" style="align-items: flex-end;"><div class="grupo-input" style="flex: 2;"><label>Platillo</label><select id="select-receta-platillo" name="id_platillo" required></select></div><div class="grupo-input" style="flex: 2;"><label>Insumo</label><select id="select-receta-ingrediente" name="id_componente" required></select></div><div class="grupo-input" style="flex: 1;"><label>Cant.</label><input type="number" step="0.01" name="cantidad" required></div><button type="submit" class="btn-alerta">Vincular</button></form></section>
         <section class="tarjeta"><h2>Menú Actual</h2><div id="lista-menu" class="grid-menu"></div></section>
       </div>
 
       <div id="vista-inventario" style="display: none;">
         <section class="tarjeta">
           <h2 style="margin-top: 0; color: var(--neon-turquesa);">Ingresar Insumo</h2>
-          <form id="form-inventario" class="form-columna">
-            <input type="text" name="nombre" placeholder="Nombre del insumo" required>
-            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-              <div class="grupo-input" style="flex: 1;"><label>Costo Unitario ($)</label><input type="number" step="0.01" name="costo" placeholder="0.00" required></div>
-              <div class="grupo-input" style="flex: 1;"><label>Stock Inicial</label><input type="number" step="0.01" name="stock" placeholder="Cantidad" required></div>
-              <div class="grupo-input" style="flex: 1;"><label>Unidad</label><select name="unidad_medida"><option value="pz">Piezas (pz)</option><option value="g">Gramos (g)</option><option value="kg">Kilos (kg)</option><option value="ml">Mililitros (ml)</option><option value="l">Litros (l)</option></select></div>
-            </div>
-            <button type="submit" class="btn-exito" style="margin-top: 10px;">Guardar en Almacén</button>
-          </form>
+          <form id="form-inventario" class="form-columna"><input type="text" name="nombre" placeholder="Nombre" required><div style="display: flex; gap: 12px; flex-wrap: wrap;"><div class="grupo-input" style="flex: 1;"><label>Costo ($)</label><input type="number" step="0.01" name="costo" required></div><div class="grupo-input" style="flex: 1;"><label>Stock</label><input type="number" step="0.01" name="stock" required></div><div class="grupo-input" style="flex: 1;"><label>Unidad</label><select name="unidad_medida"><option value="pz">pz</option><option value="g">g</option><option value="kg">kg</option><option value="ml">ml</option><option value="l">l</option></select></div></div><button type="submit" class="btn-exito" style="margin-top: 10px;">Guardar</button></form>
         </section>
         <section class="tarjeta"><h2>Almacén Actual</h2><div id="lista-inventario" class="grid-menu"></div></section>
+      </div>
+
+      <div id="vista-personal" style="display: none;">
+        <section class="tarjeta">
+          <h2 style="margin-top: 0; color: var(--neon-turquesa);">Alta de Meseros</h2>
+          <form id="form-empleado" class="formulario" style="align-items: flex-end;">
+            <div class="grupo-input" style="flex: 3;">
+              <label>Nombre Completo del Empleado</label>
+              <input type="text" name="nombre" placeholder="Ej. Juan Pérez" required>
+            </div>
+            <button type="submit" class="btn-exito" style="flex: 1;">Registrar</button>
+          </form>
+        </section>
+        <section class="tarjeta">
+          <h2>Plantilla de Meseros</h2>
+          <div id="lista-empleados" class="grid-menu"></div>
+        </section>
       </div>
 
       <div id="vista-reportes" style="display: none;">
         <section class="tarjeta">
           <h2 style="color: var(--neon-turquesa);">Corte de Caja</h2>
-          <button id="btn-generar-reporte" class="btn-primario" style="margin-bottom: 20px; width: 100%;">Procesar Datos Financieros</button>
+          <button id="btn-generar-reporte" class="btn-primario" style="margin-bottom: 20px; width: 100%;">Procesar Datos</button>
           <div id="contenido-reporte" style="display: none; background: rgba(1, 6, 18, 0.8); padding: 20px; border-radius: 8px; border: 1px solid var(--neon-turquesa);">
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; text-align: center;">
               <div style="padding: 15px; border-radius: 8px; border: 1px solid var(--neon-cyan); box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);"><h3 style="margin:0;color:var(--neon-cyan);">Ingreso Total</h3><p id="rep-total" style="font-size: 2em; margin: 10px 0 0 0; color: white; font-weight: bold;">$0.00</p></div>
@@ -131,18 +138,12 @@ document.querySelector('#app').innerHTML = `
   </div>
 `;
 
-// ==========================================
-// 2. SISTEMA DE ROLES Y NAVEGACIÓN
-// ==========================================
 let esAdmin = false;
-
 function cambiarVista(vistaDestino, btnActivo) {
-  const vistas = ['vista-pedidos', 'vista-cocina', 'vista-menu', 'vista-inventario', 'vista-reportes'];
-  const botones = ['nav-pedidos', 'nav-cocina', 'nav-menu', 'nav-inventario', 'nav-reportes'];
-  
+  const vistas = ['vista-pedidos', 'vista-cocina', 'vista-menu', 'vista-inventario', 'vista-personal', 'vista-reportes'];
+  const botones = ['nav-pedidos', 'nav-cocina', 'nav-menu', 'nav-inventario', 'nav-personal', 'nav-reportes'];
   vistas.forEach(v => document.getElementById(v).style.display = (v === vistaDestino) ? 'block' : 'none');
   botones.forEach(b => document.getElementById(b).className = (b === btnActivo) ? 'btn-primario' : 'btn-inactivo');
-  
   if(vistaDestino === 'vista-pedidos') cargarDropdownsPedidos();
 }
 
@@ -150,101 +151,91 @@ document.getElementById('nav-pedidos').addEventListener('click', () => cambiarVi
 document.getElementById('nav-cocina').addEventListener('click', () => cambiarVista('vista-cocina', 'nav-cocina'));
 document.getElementById('nav-menu').addEventListener('click', () => cambiarVista('vista-menu', 'nav-menu'));
 document.getElementById('nav-inventario').addEventListener('click', () => cambiarVista('vista-inventario', 'nav-inventario'));
+document.getElementById('nav-personal').addEventListener('click', () => cambiarVista('vista-personal', 'nav-personal'));
 document.getElementById('nav-reportes').addEventListener('click', () => cambiarVista('vista-reportes', 'nav-reportes'));
 
-
-// ==========================================
-// 3. EVENTOS OPERATIVOS (MAPA, PEDIDOS, COBRO)
-// ==========================================
 async function cargarDropdownsPedidos() {
   const { data: pedidos } = await supabase.from('PEDIDO').select('folio_pedido, id_mesa').eq('estado', 'Abierto');
-  
-  // Dibujar el mapa interactivo
   dibujarMapaMesas(pedidos);
-
-  const opciones = pedidos ? pedidos.map(p => `<option value="${p.folio_pedido}">Mesa ${p.id_mesa} (Folio #${p.folio_pedido})</option>`).join('') : '';
-  document.getElementById('select-folios').innerHTML = opciones; document.getElementById('select-ticket-folio').innerHTML = opciones;
+  
+  const opciones = pedidos && pedidos.length > 0 ? pedidos.map(p => `<option value="${p.folio_pedido}">Mesa ${p.id_mesa} (Folio #${p.folio_pedido})</option>`).join('') : '<option value="">Ninguna mesa activa</option>';
+  document.getElementById('select-folios').innerHTML = opciones; 
+  document.getElementById('select-ticket-folio').innerHTML = opciones;
   
   const { data: platillos } = await supabase.from('PLATILLO').select('*');
   if (platillos) {
-    const optsPlatillos = platillos.map(p => `<option value="${p.id_platillo}" data-precio="${p.precio}">${p.nombre} - $${p.precio}</option>`).join('');
-    document.getElementById('select-platillos').innerHTML = optsPlatillos;
-    document.getElementById('select-receta-platillo').innerHTML = optsPlatillos; 
+    document.getElementById('select-receta-platillo').innerHTML = platillos.map(p => `<option value="${p.id_platillo}">${p.nombre}</option>`).join(''); 
+    let htmlMenu = '';
+    platillos.forEach(p => {
+      let icono = '🍽️'; if(p.categoria === 'Bebidas') icono = '🍹'; if(p.categoria === 'Postres') icono = '🍰'; if(p.categoria === 'Entradas') icono = '🥗'; if(p.categoria === 'Plato Fuerte') icono = '🌮';
+      htmlMenu += `<button class="btn-pos" onclick="agregarPlatilloDirecto(${p.id_platillo}, ${p.precio})"><span class="icono">${icono}</span><span class="nombre">${p.nombre}</span><span class="precio">$${p.precio}</span></button>`;
+    });
+    document.getElementById('grid-platillos-pos').innerHTML = htmlMenu;
   }
 }
 
-// LOGICA DEL MAPA VISUAL
 function dibujarMapaMesas(pedidos) {
-  const TOTAL_MESAS = 8; // Puedes cambiar la cantidad de mesas aquí
-  let html = '';
-  
+  const TOTAL_MESAS = 8; let html = '';
   for (let i = 1; i <= TOTAL_MESAS; i++) {
     const mesaOcupada = pedidos ? pedidos.find(p => p.id_mesa === i) : null;
-    
-    if (mesaOcupada) {
-      html += `
-        <div class="mesa-visual mesa-ocupada" onclick="seleccionarMesaOcupada(${mesaOcupada.folio_pedido})">
-          <span class="mesa-numero">${i}</span>
-          <span class="mesa-estado">Ocupada<br>#${mesaOcupada.folio_pedido}</span>
-        </div>`;
-    } else {
-      html += `
-        <div class="mesa-visual mesa-libre" onclick="abrirMesaRapida(${i})">
-          <span class="mesa-numero">${i}</span>
-          <span class="mesa-estado">Libre</span>
-        </div>`;
-    }
+    if (mesaOcupada) { html += `<div class="mesa-visual mesa-ocupada" onclick="seleccionarMesaOcupada(${mesaOcupada.folio_pedido})"><span class="mesa-numero">${i}</span><span class="mesa-estado">Ocupada<br>#${mesaOcupada.folio_pedido}</span></div>`; } 
+    else { html += `<div class="mesa-visual mesa-libre" onclick="abrirMesaRapida(${i})"><span class="mesa-numero">${i}</span><span class="mesa-estado">Libre</span></div>`; }
   }
   document.getElementById('mapa-mesas').innerHTML = html;
 }
 
-// Funciones globales para que el HTML pueda detectarlas al hacer clic
 window.abrirMesaRapida = async function(numMesa) {
-  if (confirm(`¿Quieres abrir una cuenta en la Mesa ${numMesa}?`)) {
-    // Intentamos hacer el insert en la base de datos
-    const { error } = await supabase.from('PEDIDO').insert([{ 
-      id_mesa: numMesa, 
-      id_empleado_mesero: 1, 
-      estado: 'Abierto', 
-      hora_apertura: new Date().toISOString() 
-    }]);
-    
-    // Si PostgreSQL rechaza la operación, mostramos el error real
-    if (error) {
-      alert("❌ Error de Base de Datos:\n" + error.message + "\n\n(Sugerencia: Revisa si esta mesa existe en tu tabla MESA).");
-    } else {
-      cargarDropdownsPedidos();
-    }
+  const meseroActivo = document.getElementById('select-mesero-turno').value;
+  if(!meseroActivo) { alert("⚠️ Por favor, selecciona a un mesero en turno en la parte superior antes de abrir una mesa."); return; }
+  
+  if (confirm(`¿Abrir cuenta en la Mesa ${numMesa}?`)) {
+    const { error } = await supabase.from('PEDIDO').insert([{ id_mesa: numMesa, id_empleado_mesero: parseInt(meseroActivo), estado: 'Abierto', hora_apertura: new Date().toISOString() }]);
+    if (error) { alert("❌ Error: " + error.message); } else { cargarDropdownsPedidos(); }
   }
 };
 
 window.seleccionarMesaOcupada = function(folio) {
-  document.getElementById('select-folios').value = folio;
+  document.getElementById('select-folios').value = folio; 
   document.getElementById('select-ticket-folio').value = folio;
-  document.getElementById('btn-ver-ticket').click();
+  document.getElementById('btn-ver-ticket').click(); 
   document.getElementById('zona-ticket').scrollIntoView({ behavior: 'smooth' });
 };
 
-
-document.querySelector('#form-detalle').addEventListener('submit', async (e) => {
-  e.preventDefault(); const form = e.target; const folio = parseInt(form.folio_pedido.value); const selectP = form.id_platillo;
+window.agregarPlatilloDirecto = async function(idPlatillo, precio) {
+  const folio = document.getElementById('select-folios').value;
+  if(!folio) { alert("⚠️ Selecciona una mesa roja (ocupada) primero para agregarle platillos."); return; }
+  
   const { data: lineas } = await supabase.from('DETALLE_PEDIDO').select('num_linea').eq('folio_pedido', folio).order('num_linea', { ascending: false }).limit(1);
-  await supabase.from('DETALLE_PEDIDO').insert([{ folio_pedido: folio, num_linea: (lineas && lineas.length > 0) ? lineas[0].num_linea + 1 : 1, id_platillo: parseInt(selectP.value), cantidad_servida: parseInt(form.cantidad.value), precio_unitario: parseFloat(selectP.options[selectP.selectedIndex].dataset.precio) }]);
-  form.cantidad.value = 1; if(document.getElementById('select-ticket-folio').value == folio) document.getElementById('btn-ver-ticket').click();
-});
+  const numLinea = (lineas && lineas.length > 0) ? lineas[0].num_linea + 1 : 1;
+  
+  await supabase.from('DETALLE_PEDIDO').insert([{ folio_pedido: folio, num_linea: numLinea, id_platillo: idPlatillo, cantidad_servida: 1, precio_unitario: precio }]);
+  
+  document.getElementById('select-ticket-folio').value = folio; 
+  document.getElementById('btn-ver-ticket').click();
+};
 
 document.getElementById('btn-ver-ticket').addEventListener('click', async () => {
   const folio = document.getElementById('select-ticket-folio').value;
   if(!folio) return;
   const { data } = await supabase.from('DETALLE_PEDIDO').select('cantidad_servida, precio_unitario, PLATILLO ( nombre )').eq('folio_pedido', folio);
   const cont = document.getElementById('ticket-contenido');
-  if (!data || data.length === 0) { cont.style.display = 'block'; cont.innerHTML = `<p style="text-align:center;">Mesa sin consumos cargados.</p>`; document.getElementById('zona-cobro').style.display = 'none'; return; }
+  if (!data || data.length === 0) { cont.style.display = 'block'; cont.innerHTML = `<p style="text-align:center; color: black;">Mesa sin consumos cargados.</p>`; document.getElementById('zona-cobro').style.display = 'none'; document.getElementById('btn-imprimir').style.display = 'none'; return; }
   
-  let total = 0, html = `<div style="text-align: center; border-bottom: 2px dashed #ccc; padding-bottom: 10px; margin-bottom: 10px;"><h3>RESTAURANTE ESCOM</h3><p>Folio #${folio}</p></div>`;
-  data.forEach(i => { total += i.cantidad_servida * i.precio_unitario; html += `<div style="display: flex; justify-content: space-between;"><span>${i.cantidad_servida}x ${i.PLATILLO.nombre}</span><span>$${(i.cantidad_servida * i.precio_unitario).toFixed(2)}</span></div>`; });
-  html += `<div style="border-top: 2px dashed #ccc; margin-top: 10px; padding-top: 10px; display: flex; justify-content: space-between; font-weight: bold; font-size: 1.2em;"><span>TOTAL:</span><span id="ticket-total" data-valor="${total}">$${total.toFixed(2)}</span></div>`;
-  
-  cont.innerHTML = html; cont.style.display = 'block'; document.getElementById('zona-cobro').style.display = 'block';
+  let total = 0;
+  let html = `<div style="text-align: center; border-bottom: 2px dashed #000; padding-bottom: 10px; margin-bottom: 10px;"><h3 style="margin: 0; color: #000; font-size: 1.2em;">RESTAURANTE ESCOM</h3><p style="margin: 5px 0 0 0; color: #000;">Folio #${folio}</p></div><table style="width: 100%; color: #000; font-family: monospace; font-size: 0.95em; border-collapse: collapse;">`;
+  data.forEach(i => { const subtotal = i.cantidad_servida * i.precio_unitario; total += subtotal; html += `<tr><td style="padding: 4px 0; text-align: left;">${i.cantidad_servida}x ${i.PLATILLO.nombre}</td><td style="padding: 4px 0; text-align: right;">$${subtotal.toFixed(2)}</td></tr>`; });
+  html += `</table><div style="border-top: 2px dashed #000; margin-top: 10px; padding-top: 10px;"><table style="width: 100%; color: #000; font-weight: bold; font-size: 1.2em;"><tr><td style="text-align: left;">TOTAL:</td><td style="text-align: right;" id="ticket-total" data-valor="${total}">$${total.toFixed(2)}</td></tr></table></div>`;
+  cont.innerHTML = html; cont.style.display = 'block'; document.getElementById('zona-cobro').style.display = 'block'; document.getElementById('btn-imprimir').style.display = 'block';
+});
+
+document.getElementById('btn-imprimir').addEventListener('click', () => {
+  const elementoTicket = document.getElementById('ticket-contenido');
+  const folio = document.getElementById('select-ticket-folio').value;
+  const estiloOriginal = elementoTicket.style.cssText;
+  elementoTicket.style.cssText += 'width: 260px; margin: 0 auto; background: white; padding: 15px; border: none;';
+  const opcionesPDF = { margin: 5, filename: `Ticket_Folio_${folio}.pdf`, image: { type: 'jpeg', quality: 1 }, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'mm', format: [80, 200], orientation: 'portrait' } };
+  const btn = document.getElementById('btn-imprimir'); const textoOriginal = btn.innerText; btn.innerText = "⏳ Generando..."; btn.disabled = true;
+  html2pdf().set(opcionesPDF).from(elementoTicket).save().then(() => { btn.innerText = textoOriginal; btn.disabled = false; elementoTicket.style.cssText = estiloOriginal; });
 });
 
 document.getElementById('btn-cobrar').addEventListener('click', async () => {
@@ -252,7 +243,6 @@ document.getElementById('btn-cobrar').addEventListener('click', async () => {
   const spanTotal = document.getElementById('ticket-total');
   if (!spanTotal || parseFloat(spanTotal.dataset.valor) <= 0) { alert("❌ Error: Mesa vacía."); return; }
   if (!confirm(`¿Cerrar y cobrar Mesa (Folio #${folio})?`)) return;
-
   const { data: detalles } = await supabase.from('DETALLE_PEDIDO').select('id_platillo, cantidad_servida').eq('folio_pedido', folio);
   if (detalles) {
     for (const det of detalles) {
@@ -266,17 +256,50 @@ document.getElementById('btn-cobrar').addEventListener('click', async () => {
       }
     }
   }
-
   await supabase.from('PEDIDO').update({ estado: 'Cerrado', hora_cobro: new Date().toISOString(), metodo_pago: document.getElementById('select-pago').value }).eq('folio_pedido', folio);
   alert("¡Cuenta pagada y almacén actualizado! ✅");
-  
-  document.getElementById('ticket-contenido').style.display = 'none'; document.getElementById('zona-cobro').style.display = 'none';
+  document.getElementById('ticket-contenido').style.display = 'none'; document.getElementById('zona-cobro').style.display = 'none'; document.getElementById('btn-imprimir').style.display = 'none';
   cargarDropdownsPedidos(); cargarInventario();
 });
 
-// ==========================================
-// 4. CRUD DE MENÚ E INVENTARIO
-// ==========================================
+async function cargarEmpleados() {
+  const { data } = await supabase.from('EMPLEADO').select('*').order('id_empleado', { ascending: true });
+  if (data) {
+
+    document.getElementById('select-mesero-turno').innerHTML = data.map(e => `<option value="${e.id_empleado}">${e.nombre}</option>`).join('');
+
+    document.getElementById('lista-empleados').innerHTML = data.map(e => `
+      <div class="item-menu" style="border-left: 4px solid var(--neon-turquesa); display: flex; justify-content: space-between; align-items: center;">
+        <strong style="color: white; font-size: 1.1em;">🤵 ${e.nombre}</strong>
+        <div style="display: flex; gap: 10px;">
+          <button onclick="editarEmpleado(${e.id_empleado}, '${e.nombre}')" class="btn-alerta" style="padding: 5px 10px; font-size: 0.8em;">✏️ Editar</button>
+          <button onclick="eliminarEmpleado(${e.id_empleado})" class="btn-peligro" style="padding: 5px 10px; font-size: 0.8em;">🗑️ Borrar</button>
+        </div>
+      </div>`).join('');
+  }
+}
+
+document.getElementById('form-empleado').addEventListener('submit', async (e) => {
+  e.preventDefault(); const nombre = e.target.nombre.value;
+  const { error } = await supabase.from('EMPLEADO').insert([{ nombre: nombre }]);
+  if (!error) { alert("¡Mesero registrado!"); e.target.reset(); cargarEmpleados(); } else { alert("Error: " + error.message); }
+});
+
+window.eliminarEmpleado = async function(id) {
+  if(confirm("¿Estás seguro de eliminar a este mesero? (No podrás si tiene pedidos asociados).")) {
+    const { error } = await supabase.from('EMPLEADO').delete().eq('id_empleado', id);
+    if(error) alert("Error: Probablemente tiene pedidos registrados.\n" + error.message); else cargarEmpleados();
+  }
+}
+
+window.editarEmpleado = async function(id, nombreActual) {
+  const nuevoNombre = prompt("Modificar nombre del mesero:", nombreActual);
+  if(nuevoNombre && nuevoNombre.trim() !== "") {
+    await supabase.from('EMPLEADO').update({ nombre: nuevoNombre }).eq('id_empleado', id);
+    cargarEmpleados();
+  }
+}
+
 async function cargarInventario() {
   const { data } = await supabase.from('COMPONENTE').select('*').order('id_componente', { ascending: false });
   if (data) {
@@ -290,17 +313,31 @@ async function cargarInventario() {
 
 document.querySelector('#form-inventario').addEventListener('submit', async (e) => {
   e.preventDefault(); const f = new FormData(e.target);
-  const { error } = await supabase.from('COMPONENTE').insert([{ id_restaurante: 1, nombre: f.get('nombre'), costo: parseFloat(f.get('costo')), stock_actual: parseFloat(f.get('stock')), unidad_medida: f.get('unidad_medida') }]);
+  const { error } = await supabase.from('COMPONENTE').insert([{ nombre: f.get('nombre'), costo: parseFloat(f.get('costo')), stock_actual: parseFloat(f.get('stock')), unidad_medida: f.get('unidad_medida') }]);
   if (!error) { alert("¡Ingrediente agregado!"); e.target.reset(); cargarInventario(); } else { alert("Error: " + error.message); }
 });
 
-async function cargarMenu() { const { data } = await supabase.from('PLATILLO').select('*'); if (data) document.getElementById('lista-menu').innerHTML = data.map(p => `<div class="item-menu"><strong>${p.nombre}</strong><span>$${p.precio}</span></div>`).join(''); }
-document.querySelector('#form-platillo').addEventListener('submit', async (e) => { e.preventDefault(); const f = new FormData(e.target); await supabase.from('PLATILLO').insert([{ id_restaurante: 1, nombre: f.get('nombre'), descripcion: f.get('descripcion'), precio: parseFloat(f.get('precio')), categoria: f.get('categoria') }]); alert("Platillo guardado"); e.target.reset(); cargarMenu(); cargarDropdownsPedidos(); });
+async function cargarMenu() { 
+  const { data } = await supabase.from('PLATILLO').select('*'); 
+  if (data) {
+    document.getElementById('lista-menu').innerHTML = data.map(p => {
+      let icono = '🍽️'; if(p.categoria === 'Bebidas') icono = '🍹'; if(p.categoria === 'Postres') icono = '🍰'; if(p.categoria === 'Entradas') icono = '🥗'; if(p.categoria === 'Plato Fuerte') icono = '🌮';
+      return `<div class="item-menu" style="border-left: 4px solid var(--neon-turquesa); display: flex; flex-direction: column; justify-content: space-between;"><div><div style="display: flex; justify-content: space-between; align-items: flex-start;"><strong style="color: white; font-size: 1.2em;">${icono} ${p.nombre}</strong><span style="color: var(--neon-cyan); font-weight: 900; font-size: 1.3em;">$${p.precio}</span></div><p style="margin: 8px 0; color: var(--texto-sec); font-size: 0.85em; font-style: italic;">"${p.descripcion}"</p></div><div style="margin-top: 10px;"><span style="display: inline-block; padding: 4px 8px; background: rgba(15, 240, 252, 0.1); color: var(--neon-turquesa); border: 1px solid var(--neon-turquesa); border-radius: 6px; font-size: 0.7em; text-transform: uppercase; font-weight: bold; letter-spacing: 1px;">${p.categoria}</span></div></div>`;
+    }).join('');
+  } 
+}
+
+document.querySelector('#form-platillo').addEventListener('submit', async (e) => { 
+  e.preventDefault(); const f = new FormData(e.target); const precioIngresado = parseFloat(f.get('precio'));
+  if (precioIngresado <= 0) { alert("❌ Error: El precio debe ser mayor a $0"); return; }
+  const btn = e.target.querySelector('button'); const textoOriginal = btn.innerText; btn.innerText = "⏳..."; btn.disabled = true;
+  const { error } = await supabase.from('PLATILLO').insert([{ nombre: f.get('nombre'), descripcion: f.get('descripcion'), precio: precioIngresado, categoria: f.get('categoria') }]); 
+  btn.innerText = textoOriginal; btn.disabled = false;
+  if (!error) { alert("¡Platillo agregado! ✨"); e.target.reset(); cargarMenu(); cargarDropdownsPedidos(); } else { alert("Error: " + error.message); }
+});
+
 document.querySelector('#form-receta').addEventListener('submit', async (e) => { e.preventDefault(); const f = new FormData(e.target); const idPlatillo = parseInt(f.get('id_platillo')); const { data: pasos } = await supabase.from('COMPONENTE_RECETA').select('num_paso').eq('id_platillo', idPlatillo).order('num_paso', { ascending: false }).limit(1); const { error } = await supabase.from('COMPONENTE_RECETA').insert([{ id_platillo: idPlatillo, num_paso: (pasos && pasos.length > 0) ? pasos[0].num_paso + 1 : 1, id_componente: parseInt(f.get('id_componente')), cantidad_requerida: parseFloat(f.get('cantidad')) }]); if (!error) { alert("¡Ingrediente vinculado!"); e.target.reset(); } else { alert("Error: " + error.message); }});
 
-// ==========================================
-// 5. WEBSOCKETS Y REPORTES
-// ==========================================
 function activarWebSocketsCocina() {
   supabase.channel('canal-cocina').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'DETALLE_PEDIDO' }, async (payload) => {
     const nuevo = payload.new; const { data } = await supabase.from('PLATILLO').select('nombre').eq('id_platillo', nuevo.id_platillo).single();
@@ -317,9 +354,6 @@ document.getElementById('btn-generar-reporte').addEventListener('click', async (
   document.getElementById('rep-total').innerText = `$${t.toFixed(2)}`; document.getElementById('rep-mesas').innerText = p.length; document.getElementById('contenido-reporte').style.display='block'; 
 });
 
-// ==========================================
-// 6. AUTENTICACIÓN Y ARRANQUE
-// ==========================================
 document.querySelector('#form-login').addEventListener('submit', async (e) => {
   e.preventDefault(); const emailInput = e.target.email.value;
   const { error } = await supabase.auth.signInWithPassword({ email: emailInput, password: e.target.password.value });
@@ -333,9 +367,12 @@ document.getElementById('btn-logout').addEventListener('click', async () => { aw
 
 function arrancarApp() {
   document.getElementById('seccion-login').style.display = 'none'; document.getElementById('seccion-sistema').style.display = 'block';
-  if (esAdmin) { document.getElementById('nav-menu').style.display = 'block'; document.getElementById('nav-inventario').style.display = 'block'; document.getElementById('nav-reportes').style.display = 'block'; } 
-  else { document.getElementById('nav-menu').style.display = 'none'; document.getElementById('nav-inventario').style.display = 'none'; document.getElementById('nav-reportes').style.display = 'none'; }
-  cargarDropdownsPedidos(); cargarMenu(); cargarInventario(); activarWebSocketsCocina();
+  if (esAdmin) { 
+    document.getElementById('nav-menu').style.display = 'block'; document.getElementById('nav-inventario').style.display = 'block'; document.getElementById('nav-personal').style.display = 'block'; document.getElementById('nav-reportes').style.display = 'block'; 
+  } else { 
+    document.getElementById('nav-menu').style.display = 'none'; document.getElementById('nav-inventario').style.display = 'none'; document.getElementById('nav-personal').style.display = 'none'; document.getElementById('nav-reportes').style.display = 'none'; 
+  }
+  cargarEmpleados(); cargarDropdownsPedidos(); cargarMenu(); cargarInventario(); activarWebSocketsCocina();
 }
 
 supabase.auth.getSession().then(async ({ data: { session } }) => { 
