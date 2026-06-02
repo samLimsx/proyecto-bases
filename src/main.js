@@ -5,7 +5,7 @@ const supabaseUrl = 'https://qkovcumfzicpepcyjkzq.supabase.co'
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFrb3ZjdW1memljcGVwY3lqa3pxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4NDE5MDAsImV4cCI6MjA5MjQxNzkwMH0.z7BzjaL5IXwLye04gqEtvC_DIm6MaYR1oL2OKADuRz4' // <-- ¡Tu llave aquí!
 
 const supabase = createClient(supabaseUrl, supabaseKey)
-
+//esta linea solo es para ver si funciona el editor en mi tablet, jeje
 document.querySelector('#app').innerHTML = `
   <div class="contenedor">
     <div class="header-titulo">
@@ -213,9 +213,20 @@ function dibujarMapaMesas(pedidos) {
 window.abrirMesaRapida = async function(numMesa) {
   const meseroActivo = document.getElementById('select-mesero-turno').value;
   if(!meseroActivo) { alert("⚠️ Selecciona a un mesero en turno en la parte superior."); return; }
+  
   if (confirm(`¿Abrir cuenta en la Mesa ${numMesa}?`)) {
-    const { error } = await supabase.from('PEDIDO').insert([{ id_mesa: numMesa, id_empleado_mesero: parseInt(meseroActivo), estado: 'Abierto', hora_apertura: new Date().toISOString() }]);
-    if (!error) { cargarDropdownsPedidos(); }
+    const { error } = await supabase.from('PEDIDO').insert([{ 
+      id_mesa: numMesa, 
+      id_empleado_mesero: parseInt(meseroActivo), 
+      estado: 'Abierto', 
+      hora_apertura: new Date().toISOString() 
+    }]);
+ 
+    if (error) { 
+      alert("❌ Error de Base de Datos:\n" + error.message); 
+    } else { 
+      cargarDropdownsPedidos(); 
+    }
   }
 };
 
@@ -307,9 +318,6 @@ document.getElementById('btn-cobrar').addEventListener('click', async () => {
   cargarInventario();
 });
 
-// ==========================================
-// 4. MÓDULOS DE ADMINISTRACIÓN (PERSONAL Y EDICIÓN)
-// ==========================================
 window.empleadoEditandoId = null;
 
 async function cargarEmpleados() {
