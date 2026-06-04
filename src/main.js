@@ -215,14 +215,16 @@ async function cargarDropdownsPedidos() {
 
 function dibujarMapaMesas(pedidos) {
   const posiciones = [
-    { id: 1, top: '10%', left: '10%' }, // Esquina superior izquierda
-    { id: 2, top: '10%', left: '40%' }, // Arriba al centro
-    { id: 3, top: '10%', left: '70%' }, // Esquina superior derecha
-    { id: 4, top: '45%', left: '15%' }, // Centro izquierda
-    { id: 5, top: '45%', left: '65%' }, // Centro derecha
-    { id: 6, top: '75%', left: '10%' }, // Abajo izquierda
-    { id: 7, top: '75%', left: '40%' }, // Abajo centro
-    { id: 8, top: '75%', left: '70%' }  // Abajo derecha
+    { id: 1, top: '25%', left: '20%' }, // Fila 1 - Izquierda
+    { id: 2, top: '25%', left: '50%' }, // Fila 1 - Centro
+    { id: 3, top: '25%', left: '80%' }, // Fila 1 - Derecha
+    
+    { id: 4, top: '50%', left: '30%' }, // Fila 2 - Izquierda (más al centro)
+    { id: 5, top: '50%', left: '70%' }, // Fila 2 - Derecha (más al centro)
+    
+    { id: 6, top: '75%', left: '20%' }, // Fila 3 - Izquierda
+    { id: 7, top: '75%', left: '50%' }, // Fila 3 - Centro
+    { id: 8, top: '75%', left: '80%' }  // Fila 3 - Derecha
   ];
   let html = '';
 posiciones.forEach(pos => {
