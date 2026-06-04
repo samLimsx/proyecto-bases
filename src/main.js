@@ -439,7 +439,7 @@ document.getElementById('btn-generar-reporte').addEventListener('click', async (
 
 document.querySelector('#form-login').addEventListener('submit', async (e) => {
   e.preventDefault(); const emailInput = e.target.email.value; const passInput = e.target.password.value;
-  if (emailInput === 'admin' && passInput === 'admin') {
+  if (emailInput === 'admin@prueba.com' && passInput === 'admin') {
     const usuarioChocolate = { nombre: 'Admin Prueba', rol: 'Admin', email: 'admin' };
     localStorage.setItem('pos_user', JSON.stringify(usuarioChocolate));
     esAdmin = true;
