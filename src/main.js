@@ -220,19 +220,19 @@ function dibujarMapaMesas(pedidos) {
     if (mesaOcupada) { 
       // Mesa Ocupada (Rojo)
       html += `
-        <div class="mesa-visual mesa-ocupada" onclick="seleccionarMesaOcupada(${i}, ${mesaOcupada.folio_pedido})" title="Clic para gestionar">
-          <span style="font-size: 2em;">🍷</span>
-          <span class="mesa-numero">Mesa ${i}</span>
-          <span class="mesa-estado">Ocupada<br>Folio #${mesaOcupada.folio_pedido}</span>
+       <div class="mesa-visual mesa-ocupada" onclick="seleccionarMesaOcupada(${i}, ${mesaOcupada.folio_pedido})" style="cursor: pointer; text-align: center;">
+          <img src="/mesa.png" alt="Mesa Ocupada" style="width: 90px; height: auto; filter: drop-shadow(0px 0px 8px rgba(255, 56, 96, 0.8)); margin-bottom: 8px;">
+          <div class="mesa-numero" style="font-weight: bold; color: white;">Mesa ${i}</div>
+          <div class="mesa-estado" style="color: var(--neon-rojo); font-size: 0.85em;">Ocupada<br>Folio #${mesaOcupada.folio_pedido}</div>
         </div>`; 
     } else { 
       // Mesa Libre (Verde)
       html += `
-        <div class="mesa-visual mesa-libre" onclick="abrirMesaRapida(${i})" title="Clic para abrir">
-          <span style="font-size: 2em;">🍽️</span>
-          <span class="mesa-numero">Mesa ${i}</span>
-          <span class="mesa-estado">Libre</span>
-        </div>`; 
+       <div class="mesa-visual mesa-libre" onclick="abrirMesaRapida(${i})" style="cursor: pointer; text-align: center;">
+          <img src="/mesa.png" alt="Mesa Libre" style="width: 90px; height: auto; opacity: 0.7; filter: drop-shadow(0px 0px 8px rgba(16, 185, 129, 0.8)); margin-bottom: 8px;">
+          <div class="mesa-numero" style="font-weight: bold; color: white;">Mesa ${i}</div>
+          <div class="mesa-estado" style="color: var(--neon-cyan); font-size: 0.85em;">Libre</div>
+        </div>`;
     }
   }
   document.getElementById('mapa-mesas').innerHTML = html;
