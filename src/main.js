@@ -55,7 +55,7 @@ document.querySelector('#app').innerHTML = `
                 </div>
               </div>
             </div>
-            <div id="mapa-mesas" class="grid-mesas" style="grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px;"></div>
+            <div id="mapa-mesas" style="position: relative; width: 100%; height: 500px; background: rgba(15, 240, 252, 0.05); border: 2px dashed var(--neon-turquesa); border-radius: 10px; margin-top: 20px;"></div>
           </section>
         </div>
 
@@ -214,27 +214,36 @@ async function cargarDropdownsPedidos() {
 }
 
 function dibujarMapaMesas(pedidos) {
-  const TOTAL_MESAS = 8; let html = '';
-  for (let i = 1; i <= TOTAL_MESAS; i++) {
-    const mesaOcupada = pedidos ? pedidos.find(p => p.id_mesa === i) : null;
+  const posiciones = [
+    { id: 1, top: '10%', left: '10%' }, // Esquina superior izquierda
+    { id: 2, top: '10%', left: '40%' }, // Arriba al centro
+    { id: 3, top: '10%', left: '70%' }, // Esquina superior derecha
+    { id: 4, top: '45%', left: '15%' }, // Centro izquierda
+    { id: 5, top: '45%', left: '65%' }, // Centro derecha
+    { id: 6, top: '75%', left: '10%' }, // Abajo izquierda
+    { id: 7, top: '75%', left: '40%' }, // Abajo centro
+    { id: 8, top: '75%', left: '70%' }  // Abajo derecha
+  ];
+  let html = '';
+posiciones.forEach(pos => {
+    const mesaOcupada = pedidos ? pedidos.find(p => p.id_mesa === pos.id) : null;
+    
     if (mesaOcupada) { 
-      // Mesa Ocupada (Rojo)
+      // MESA OCUPADA
       html += `
-       <div class="mesa-visual mesa-ocupada" onclick="seleccionarMesaOcupada(${i}, ${mesaOcupada.folio_pedido})" style="cursor: pointer; text-align: center;">
-          <img src="/mesa.png" alt="Mesa Ocupada" style="width: 90px; height: auto; filter: drop-shadow(0px 0px 8px rgba(255, 56, 96, 0.8)); margin-bottom: 8px;">
-          <div class="mesa-numero" style="font-weight: bold; color: white;">Mesa ${i}</div>
-          <div class="mesa-estado" style="color: var(--neon-rojo); font-size: 0.85em;">Ocupada<br>Folio #${mesaOcupada.folio_pedido}</div>
+        <div class="mesa-visual mesa-ocupada" onclick="seleccionarMesaOcupada(${pos.id}, ${mesaOcupada.folio_pedido})" style="position: absolute; top: ${pos.top}; left: ${pos.left}; cursor: pointer; text-align: center; width: 90px; transform: translate(-50%, -50%);">
+          <img src="/mesa.png" alt="Mesa" style="width: 100%; filter: drop-shadow(0px 0px 8px rgba(255, 56, 96, 0.9));">
+          <div style="font-weight: bold; color: white; background: rgba(0,0,0,0.6); border-radius: 4px;">Mesa ${pos.id}</div>
         </div>`; 
     } else { 
-      // Mesa Libre (Verde)
+      // MESA LIBRE
       html += `
-       <div class="mesa-visual mesa-libre" onclick="abrirMesaRapida(${i})" style="cursor: pointer; text-align: center;">
-          <img src="/mesa.png" alt="Mesa Libre" style="width: 90px; height: auto; opacity: 0.7; filter: drop-shadow(0px 0px 8px rgba(16, 185, 129, 0.8)); margin-bottom: 8px;">
-          <div class="mesa-numero" style="font-weight: bold; color: white;">Mesa ${i}</div>
-          <div class="mesa-estado" style="color: var(--neon-cyan); font-size: 0.85em;">Libre</div>
-        </div>`;
+        <div class="mesa-visual mesa-libre" onclick="abrirMesaRapida(${pos.id})" style="position: absolute; top: ${pos.top}; left: ${pos.left}; cursor: pointer; text-align: center; width: 90px; transform: translate(-50%, -50%);">
+          <img src="/mesa.png" alt="Mesa" style="width: 100%; opacity: 0.6; filter: drop-shadow(0px 0px 8px rgba(16, 185, 129, 0.9));">
+          <div style="font-weight: bold; color: white; background: rgba(0,0,0,0.6); border-radius: 4px;">Mesa ${pos.id}</div>
+        </div>`; 
     }
-  }
+  });
   document.getElementById('mapa-mesas').innerHTML = html;
 }
 
