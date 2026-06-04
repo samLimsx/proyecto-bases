@@ -1,6 +1,6 @@
 # 🍽️ Sistema de Gestión de Restaurante
 
-Aplicación web full-stack desarrollada en equipo para la gestión integral de un restaurante. El sistema permite la administración del menú, control de almacén, gestión de personal, finanzas y cuenta con un mapa interactivo del salón en tiempo real.
+Aplicación web full-stack desarrollada para la gestión integral de un restaurante. El sistema permite la administración del menú, control de almacén, gestión de personal, finanzas y cuenta con un mapa  del salón en tiempo real.
 
 ## Tecnologías Utilizadas
 * **Frontend:** HTML5, CSS3, JavaScript, Vite
