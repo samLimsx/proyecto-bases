@@ -57,8 +57,8 @@ El sistema está dividido en módulos interactivos que se comunican de forma as�
 
 
 ### 🔗 Enlaces del Proyecto
-* **Código Fuente:** [Repositorio en GitHub]([https://github.com/TU-USUARIO/TU-REPOSITORIO](https://github.com/samLimsx/proyecto-bases.git))
-* **Demo en Vivo:** [Página Web en Vercel](h[ttps://TU-ENLACE-DE-VERCEL.vercel.app/](https://proyecto-bases-snowy.vercel.app/))
+* **Código Fuente:** [Repositorio en GitHub](https://github.com/samLimsx/proyecto-bases.git)
+* **Demo en Vivo:** [Página Web en Vercel](https://proyecto-bases-snowy.vercel.app/)
 * **Usuario de prueba:**`admin@prueba.com`
 * **Contraseña**`admin`
 
