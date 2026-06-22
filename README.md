@@ -288,10 +288,10 @@ Para garantizar los estándares de calidad esperados en una aplicación de softw
 
 La evaluación se ejecutó directamente sobre el entorno de producción (Vercel) y no en un entorno de desarrollo local, asegurando que los resultados reflejen fielmente la experiencia real del usuario final. Se optimizaron cuatro pilares fundamentales del desarrollo web moderno:
 
-* **⚡ Rendimiento (Performance):** Tiempos de carga y respuesta rápidos gracias al empaquetado de Vite y a la arquitectura SPA (Single Page Application), la cual interactúa con la base de datos de manera asíncrona sin recargar la página.
-* **♿ Accesibilidad (Accessibility):** Interfaz construida con HTML semántico y un diseño de alto contraste (tema oscuro con acentos de neón) que facilita la lectura y el uso prolongado durante jornadas laborales.
-* **🛡️ Buenas Prácticas (Best Practices):** Código JavaScript moderno y modular, conexiones seguras y encriptadas (HTTPS) al interactuar con el backend de Supabase, y ausencia de vulnerabilidades web comunes.
-* **🔍 SEO:** Estructuración correcta de meta-etiquetas y jerarquía de encabezados (`<h1>`, `<h2>`), cumpliendo con las normativas estándar de los motores de búsqueda.
+* ** Rendimiento (Performance):** Tiempos de carga y respuesta rápidos gracias al empaquetado de Vite y a la arquitectura SPA (Single Page Application), la cual interactúa con la base de datos de manera asíncrona sin recargar la página.
+* ** Accesibilidad (Accessibility):** Interfaz construida con HTML semántico y un diseño de alto contraste (tema oscuro con acentos de neón) que facilita la lectura y el uso prolongado durante jornadas laborales.
+* ** Buenas Prácticas (Best Practices):** Código JavaScript moderno y modular, conexiones seguras y encriptadas (HTTPS) al interactuar con el backend de Supabase, y ausencia de vulnerabilidades web comunes.
+* ** SEO:** Estructuración correcta de meta-etiquetas y jerarquía de encabezados (`<h1>`, `<h2>`), cumpliendo con las normativas estándar de los motores de búsqueda.
 
 ### Reporte Oficial
 
