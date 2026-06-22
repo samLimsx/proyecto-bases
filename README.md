@@ -297,7 +297,7 @@ La evaluación se ejecutó directamente sobre el entorno de producción (Vercel)
 
 | ⚡ Resultados de la Auditoría (Desktop) |
 | :---: |
-| ![Métricas Lighthouse](assets/IMG_4985.jpeg) |
+| ![Métricas Lighthouse](src/assets/IMG_4985.jpeg) |
 
 ---
 
