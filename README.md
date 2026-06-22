@@ -280,8 +280,28 @@ BEGIN TRANSACTION ISOLATION LEVEL SERIALIZABLE;
 COMMIT;
 ```
 
+---
 
-## 8. Conclusiones y Trabajo Futuro
+## 8. Métricas de Rendimiento y Calidad
+
+Para garantizar los estándares de calidad esperados en una aplicación de software profesional, el sistema fue sometido a una auditoría técnica utilizando **Google PageSpeed Insights** (motor de Lighthouse). 
+
+La evaluación se ejecutó directamente sobre el entorno de producción (Vercel) y no en un entorno de desarrollo local, asegurando que los resultados reflejen fielmente la experiencia real del usuario final. Se optimizaron cuatro pilares fundamentales del desarrollo web moderno:
+
+* **⚡ Rendimiento (Performance):** Tiempos de carga y respuesta rápidos gracias al empaquetado de Vite y a la arquitectura SPA (Single Page Application), la cual interactúa con la base de datos de manera asíncrona sin recargar la página.
+* **♿ Accesibilidad (Accessibility):** Interfaz construida con HTML semántico y un diseño de alto contraste (tema oscuro con acentos de neón) que facilita la lectura y el uso prolongado durante jornadas laborales.
+* **🛡️ Buenas Prácticas (Best Practices):** Código JavaScript moderno y modular, conexiones seguras y encriptadas (HTTPS) al interactuar con el backend de Supabase, y ausencia de vulnerabilidades web comunes.
+* **🔍 SEO:** Estructuración correcta de meta-etiquetas y jerarquía de encabezados (`<h1>`, `<h2>`), cumpliendo con las normativas estándar de los motores de búsqueda.
+
+### Reporte Oficial
+
+| ⚡ Resultados de la Auditoría (Desktop) |
+| :---: |
+| ![Métricas Lighthouse](assets/lighthouse.png) |
+
+---
+
+## 9. Conclusiones y Trabajo Futuro
 
 El desarrollo del sistema de gestión comercial **Fast Restaurant**, diseñado y estructurado de forma conjunta por nuestro equipo, nos permitió llegar a las siguientes conclusiones técnico-operativas:
 
