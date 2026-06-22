@@ -1,4 +1,4 @@
-# ☕ Fast Restaurant - Sistema de Gestión de Cafetería
+#  Fast Restaurant - Sistema de Gestión de Cafetería
 
 ### Integrantes
 * Aguilar Lima Samuel Alejandro 
