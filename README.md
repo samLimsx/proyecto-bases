@@ -314,6 +314,6 @@ El desarrollo del sistema de gestión comercial **Fast Restaurant**, diseñado y
 ### 🔗 Enlaces del Proyecto
 * **Código Fuente:** [Repositorio en GitHub](https://github.com/samLimsx/proyecto-bases.git)
 * **Demo en Vivo:** [Página Web en Vercel](https://proyecto-bases-snowy.vercel.app/)
-* **Demo estatica en Vivo:** [Página Web estatica en Vercel](proyecto-bases-git-version-estatica-samlimsxs-projects.vercel.app)
+* **Demo estatica en Vivo:** [Página Web estatica en Vercel](https://proyecto-bases-git-version-estatica-samlimsxs-projects.vercel.app/)
 * **Usuario de prueba:** `admin@prueba.com`
 * **Contraseña:** `admin`
