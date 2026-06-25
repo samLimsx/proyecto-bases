@@ -55,8 +55,8 @@ document.querySelector('#app').innerHTML = `
     <section id="seccion-login" class="tarjeta" style="max-width: 400px; margin: 0 auto;">
       <h2 style="text-align: center; margin-top: 0; color: var(--neon-turquesa);">Acceso al Sistema</h2>
       <form id="form-login" class="form-columna">
-        <input type="email" name="email" placeholder="Correo electrónico (Ej. admin@prueba.com)" required>
-        <input type="password" name="password" placeholder="Contraseña (Ej. admin)" required>
+        <input type="email" name="email" placeholder="Correo electrónico" required>
+        <input type="password" name="password" placeholder="Contraseña" required>
         <button type="submit" class="btn-primario" style="margin-top: 10px;">Iniciar Sesión</button>
       </form>
     </section>
@@ -73,12 +73,13 @@ document.querySelector('#app').innerHTML = `
       </nav>
 
       <div id="vista-pedidos">
+        
         <div id="contenedor-mapa">
           <section class="tarjeta">
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 20px;">
               <div>
                 <h2 style="margin: 0; color: var(--neon-turquesa);">📍 Salón Principal</h2>
-                <p style="font-size: 0.85em; color: var(--texto-sec); margin: 5px 0 0 0;">Selecciona un recuadro para abrir la mesa o gestionar sus platillos.</p>
+                <p style="font-size: 0.85em; color: var(--texto-sec); margin: 5px 0 0 0;">Selecciona un recuadro para abrir la mesa o cobrarla.</p>
               </div>
               <div style="display: flex; align-items: center; gap: 10px; background: rgba(15, 240, 252, 0.1); padding: 10px 15px; border-radius: 8px; border: 1px solid var(--neon-turquesa);">
                 <span style="font-size: 1.5em;">🤵</span>
@@ -88,7 +89,7 @@ document.querySelector('#app').innerHTML = `
                 </div>
               </div>
             </div>
-            <div id="mapa-mesas" class="grid-mesas" style="grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px;"></div>
+            <div id="mapa-mesas" style="position: relative; width: 100%; height: 500px; background: rgba(15, 240, 252, 0.05); border: 2px dashed var(--neon-turquesa); border-radius: 10px; margin-top: 20px;"></div>
           </section>
         </div>
 
@@ -102,8 +103,7 @@ document.querySelector('#app').innerHTML = `
             <section class="tarjeta" id="zona-agregar-platillo" style="border-color: var(--neon-naranja);">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                 <h2 style="margin: 0; color: var(--neon-naranja);">Agregar Consumo</h2>
-                <select id="select-folios" style="display: none;"></select>
-              </div>
+                <select id="select-folios" style="display: none;"></select> </div>
               <p style="font-size: 0.85em; color: var(--texto-sec); margin-top: 0;">Toca un platillo para enviarlo directamente a la cuenta.</p>
               <div id="grid-platillos-pos" style="display: flex; flex-direction: column; gap: 10px;"></div>
             </section>
@@ -126,6 +126,7 @@ document.querySelector('#app').innerHTML = `
             </section>
           </div>
         </div>
+
       </div>
 
       <div id="vista-cocina" style="display: none;"><section class="tarjeta"><h2 style="color: var(--neon-naranja);">Comandas Entrantes</h2><div id="lista-cocina" class="grid-menu"></div></section></div>
@@ -192,7 +193,10 @@ function cambiarVista(vistaDestino, btnActivo) {
   const botones = ['nav-pedidos', 'nav-cocina', 'nav-menu', 'nav-inventario', 'nav-personal', 'nav-reportes'];
   vistas.forEach(v => document.getElementById(v).style.display = (v === vistaDestino) ? 'block' : 'none');
   botones.forEach(b => document.getElementById(b).className = (b === btnActivo) ? 'btn-primario' : 'btn-inactivo');
-  if(vistaDestino === 'vista-pedidos') window.volverAlMapa();
+  
+  if(vistaDestino === 'vista-pedidos') {
+    window.volverAlMapa();
+  }
 }
 
 document.getElementById('nav-pedidos').addEventListener('click', () => cambiarVista('vista-pedidos', 'nav-pedidos'));
@@ -257,22 +261,44 @@ function cargarDropdownsPedidos() {
 }
 
 function dibujarMapaMesas(pedidosAbiertos) {
+  const posiciones = [
+    { id: 1, top: '20%', left: '15%' },
+    { id: 2, top: '20%', left: '50%' }, 
+    { id: 3, top: '20%', left: '85%' }, 
+    
+    { id: 4, top: '50%', left: '33%' }, 
+    { id: 5, top: '50%', left: '67%' }, 
+    
+    { id: 6, top: '80%', left: '15%' }, 
+    { id: 7, top: '80%', left: '50%' }, 
+    { id: 8, top: '80%', left: '85%' }  
+  ];
   let html = '';
-  for (let i = 1; i <= 8; i++) {
-    const mesaOcupada = pedidosAbiertos.find(p => p.id_mesa === i);
-    if (mesaOcupada) {
-      html += `<div class="mesa-visual mesa-ocupada" onclick="seleccionarMesaOcupada(${i}, ${mesaOcupada.folio_pedido})"><span>🍷</span><span class="mesa-numero">Mesa ${i}</span><span class="mesa-estado">Ocupada<br>#${mesaOcupada.folio_pedido}</span></div>`;
-    } else {
-      html += `<div class="mesa-visual mesa-libre" onclick="abrirMesaRapida(${i})"><span>🍽️</span><span class="mesa-numero">Mesa ${i}</span><span class="mesa-estado">Libre</span></div>`;
+
+  posiciones.forEach(pos => {
+    const mesaOcupada = pedidosAbiertos.find(p => p.id_mesa === pos.id);
+    
+    if (mesaOcupada) { 
+      html += `
+        <div class="mesa-visual mesa-ocupada" onclick="seleccionarMesaOcupada(${pos.id}, ${mesaOcupada.folio_pedido})" style="position: absolute; top: ${pos.top}; left: ${pos.left}; cursor: pointer; text-align: center; width: 90px; transform: translate(-50%, -50%);">
+          <img src="/mesa.png" alt="Mesa" style="width: 100%; filter: drop-shadow(0px 0px 8px rgba(255, 56, 96, 0.9));">
+          <div style="font-weight: bold; color: white; background: rgba(0,0,0,0.6); border-radius: 4px;">Mesa ${pos.id}</div>
+        </div>`; 
+    } else { 
+      html += `
+        <div class="mesa-visual mesa-libre" onclick="abrirMesaRapida(${pos.id})" style="position: absolute; top: ${pos.top}; left: ${pos.left}; cursor: pointer; text-align: center; width: 90px; transform: translate(-50%, -50%);">
+          <img src="/mesa.png" alt="Mesa" style="width: 100%; opacity: 0.6; filter: drop-shadow(0px 0px 8px rgba(16, 185, 129, 0.9));">
+          <div style="font-weight: bold; color: white; background: rgba(0,0,0,0.6); border-radius: 4px;">Mesa ${pos.id}</div>
+        </div>`; 
     }
-  }
+  });
   document.getElementById('mapa-mesas').innerHTML = html;
 }
 
 window.abrirMesaRapida = function(numMesa) {
   const meseroActivo = document.getElementById('select-mesero-turno').value;
-  if(!meseroActivo) { alert("⚠️ Selecciona a un mesero en turno."); return; }
-  if (confirm(`¿Abrir Mesa ${numMesa}?`)) {
+  if(!meseroActivo) { alert("⚠️ Selecciona a un mesero en turno en la parte superior."); return; }
+  if (confirm(`¿Abrir cuenta en la Mesa ${numMesa}?`)) {
     const db = readDB();
     db.PEDIDO.push({ folio_pedido: Date.now(), id_mesa: numMesa, id_empleado_mesero: parseInt(meseroActivo), estado: 'Abierto', descuento: 0 });
     writeDB(db);
@@ -283,10 +309,12 @@ window.abrirMesaRapida = function(numMesa) {
 window.seleccionarMesaOcupada = function(numMesa, folio) {
   document.getElementById('contenedor-mapa').style.display = 'none';
   document.getElementById('contenedor-operacion').style.display = 'block';
+  
   document.getElementById('titulo-mesa-activa').innerText = `Mesa ${numMesa} (Folio #${folio})`;
-  document.getElementById('select-folios').value = folio;
+  
+  document.getElementById('select-folios').value = folio; 
   document.getElementById('select-ticket-folio').value = folio;
-  document.getElementById('btn-ver-ticket').click();
+  document.getElementById('btn-ver-ticket').click(); 
 };
 
 window.agregarPlatilloDirecto = function(idPlatillo, precio) {
@@ -298,7 +326,8 @@ window.agregarPlatilloDirecto = function(idPlatillo, precio) {
   
   const plat = db.PLATILLO.find(p => p.id_platillo === idPlatillo);
   document.getElementById('lista-cocina').innerHTML += `<div class="item-menu" style="border-left: 4px solid var(--neon-naranja); background: rgba(1,6,18,0.8);"><small style="color: var(--texto-sec);">Folio #${folio}</small><br><strong style="font-size: 1.3em; color: white;">1x ${plat ? plat.nombre : 'Platillo'}</strong><button class="btn-exito" style="width: 100%; margin-top: 15px; padding: 8px;" onclick="this.parentElement.remove()">Listo ✔️</button></div>`;
-  document.getElementById('btn-ver-ticket').click();
+
+  document.getElementById('btn-ver-ticket').click(); 
 };
 
 document.getElementById('btn-ver-ticket').addEventListener('click', () => {
@@ -310,225 +339,244 @@ document.getElementById('btn-ver-ticket').addEventListener('click', () => {
   const detalles = db.DETALLE_PEDIDO.filter(d => d.folio_pedido === folio);
   const cont = document.getElementById('ticket-contenido');
   
-  if (detalles.length === 0) {
-    cont.style.display = 'block'; cont.innerHTML = `<p style="text-align:center; color: black; font-weight:bold;">Mesa sin consumos.</p>`;
-    document.getElementById('zona-cobro').style.display = 'none'; return;
+  if (detalles.length === 0) { 
+    cont.style.display = 'block'; cont.innerHTML = `<p style="text-align:center; color: black; font-weight:bold;">Mesa sin consumos cargados.</p>`; 
+    document.getElementById('zona-cobro').style.display = 'none'; document.getElementById('btn-imprimir').style.display = 'none'; return; 
   }
   
   let subtotal = 0;
   let html = `<div style="text-align: center; border-bottom: 2px dashed #000; padding-bottom: 10px; margin-bottom: 10px;"><h3 style="margin: 0; color: #000; font-size: 1.2em;">RESTAURANTE ESCOM</h3><p style="margin: 5px 0 0 0; color: #000;">Folio #${folio}</p></div><table style="width: 100%; color: #000; font-family: monospace; font-size: 0.95em; border-collapse: collapse;">`;
   
-  detalles.forEach(d => {
+  detalles.forEach(d => { 
     const plat = db.PLATILLO.find(p => p.id_platillo === d.id_platillo);
-    const rowTotal = d.cantidad_servida * d.precio_unitario;
-    subtotal += rowTotal;
-    const btnTransferir = `<button onclick="transferirPlatilloTicket(${folio}, ${d.num_linea})" style="background: var(--neon-turquesa); color: black; border: none; border-radius: 4px; padding: 2px 6px; cursor: pointer; font-size: 0.9em; margin-left: 8px; font-weight: bold;">↔️</button>`;
-    const btnEliminar = esAdmin ? `<button onclick="eliminarPlatilloTicket(${folio}, ${d.num_linea})" style="background: red; color: white; border: none; border-radius: 4px; padding: 2px 6px; cursor: pointer; font-size: 0.9em; margin-left: 8px; font-weight: bold;">X</button>` : '';
-    html += `<tr><td style="padding: 6px 0; text-align: left; border-bottom: 1px solid #eee;">${d.cantidad_servida}x ${plat ? plat.nombre : 'Item'} ${btnTransferir} ${btnEliminar}</td><td style="padding: 6px 0; text-align: right; border-bottom: 1px solid #eee;">$${rowTotal.toFixed(2)}</td></tr>`;
+    const rowTotal = d.cantidad_servida * d.precio_unitario; 
+    subtotal += rowTotal; 
+    const btnTransferir = `<button onclick="transferirPlatilloTicket(${folio}, ${d.num_linea})" style="background: var(--neon-turquesa); color: black; border: none; border-radius: 4px; padding: 2px 6px; cursor: pointer; font-size: 0.9em; margin-left: 8px; font-weight: bold;" title="Traspasar a otra mesa">↔️</button>`;
+    const btnEliminar = esAdmin ? `<button onclick="eliminarPlatilloTicket(${folio}, ${d.num_linea})" style="background: red; color: white; border: none; border-radius: 4px; padding: 2px 6px; cursor: pointer; font-size: 0.9em; margin-left: 8px; font-weight: bold;" title="Eliminar de la cuenta">X</button>` : '';
+    html += `<tr><td style="padding: 6px 0; text-align: left; border-bottom: 1px solid #eee;">${d.cantidad_servida}x ${plat ? plat.nombre : 'Item'} ${btnTransferir} ${btnEliminar}</td><td style="padding: 6px 0; text-align: right; border-bottom: 1px solid #eee;">$${rowTotal.toFixed(2)}</td></tr>`; 
   });
 
   const desc = pedido ? parseFloat(pedido.descuento || 0) : 0;
   const totalFinal = Math.max(0, subtotal - desc);
 
-  html += `</table><div style="margin-top: 10px; padding-top: 10px;"><table style="width: 100%; color: #000; font-size: 1em;"><tr><td>Subtotal:</td><td style="text-align: right;">$${subtotal.toFixed(2)}</td></tr>`;
-  if(desc > 0) html += `<tr><td style="color: red;">Descuento:</td><td style="text-align: right; color: red;">-$${desc.toFixed(2)}</td></tr>`;
-  html += `<tr><td style="font-weight: bold; font-size: 1.3em; border-top: 2px dashed #000; padding-top: 5px;">TOTAL:</td><td style="text-align: right; font-weight: bold; font-size: 1.3em; border-top: 2px dashed #000; padding-top: 5px;" id="ticket-total" data-valor="${totalFinal}">$${totalFinal.toFixed(2)}</td></tr></table></div>`;
+  html += `</table><div style="margin-top: 10px; padding-top: 10px;"><table style="width: 100%; color: #000; font-size: 1em;">`;
+  html += `<tr><td style="text-align: left;">Subtotal:</td><td style="text-align: right;">$${subtotal.toFixed(2)}</td></tr>`;
+  if (desc > 0) { html += `<tr><td style="text-align: left; color: red;">Descuento:</td><td style="text-align: right; color: red;">-$${desc.toFixed(2)}</td></tr>`; }
+  html += `<tr><td style="text-align: left; font-weight: bold; font-size: 1.3em; border-top: 2px dashed #000; padding-top: 5px; margin-top: 5px;">TOTAL:</td><td style="text-align: right; font-weight: bold; font-size: 1.3em; border-top: 2px dashed #000; padding-top: 5px; margin-top: 5px;" id="ticket-total" data-valor="${totalFinal}">$${totalFinal.toFixed(2)}</td></tr></table></div>`;
   
   if (esAdmin) {
-    html += `<div style="margin-top: 20px; border-top: 1px solid #ccc; padding-top: 15px; display: flex; gap: 8px;"><input type="number" id="input-desc-${folio}" placeholder="Desc. $" style="width: 90px; padding: 8px; color: #000; background: white; border: 1px solid #000; border-radius: 4px;"><button onclick="aplicarDescuento(${folio})" style="background: var(--neon-naranja); color: black; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%;">Descuento</button></div>`;
+    html += `
+      <div style="margin-top: 20px; border-top: 1px solid #ccc; padding-top: 15px; display: flex; gap: 8px; align-items: center; justify-content: space-between;">
+        <input type="number" id="input-desc-${folio}" placeholder="Desc. $" style="width: 90px; padding: 8px; font-size: 1em; border: 1px solid #000; border-radius: 4px; color: #000; background: white;" min="0">
+        <button onclick="aplicarDescuento(${folio})" style="background: var(--neon-naranja); color: black; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%;">Aplicar Descuento</button>
+      </div>`;
   }
 
-  cont.innerHTML = html; cont.style.display = 'block'; document.getElementById('zona-cobro').style.display = 'block';
+  cont.innerHTML = html; cont.style.display = 'block'; document.getElementById('zona-cobro').style.display = 'block'; document.getElementById('btn-imprimir').style.display = 'block';
 });
 
-window.eliminarPlatilloTicket = function(folio, linea) {
-  if (confirm("¿Quitar producto de la cuenta?")) {
-    const db = readDB();
-    db.DETALLE_PEDIDO = db.DETALLE_PEDIDO.filter(d => !(d.folio_pedido === folio && d.num_linea === linea));
-    writeDB(db);
-    document.getElementById('btn-ver-ticket').click();
-  }
+window.transferirPlatilloTicket = function(folioOrigen, numLinea) {
+  const mesaDestinoStr = prompt("Ingresa el NÚMERO DE MESA (1-8) al que deseas traspasar este platillo:");
+  if(!mesaDestinoStr) return;
+  const mesaDestino = parseInt(mesaDestinoStr);
+  if(isNaN(mesaDestino) || mesaDestino < 1 || mesaDestino > 8) { alert("❌ Número de mesa inválido."); return; }
+  
+  const db = readDB();
+  const pedDest = db.PEDIDO.find(p => p.id_mesa === mesaDestino && p.estado === 'Abierto');
+  if (!pedDest) { alert(`❌ La Mesa ${mesaDestino} no está abierta. Ábrela primero desde el mapa.`); return; }
+  
+  const folioDestino = pedDest.folio_pedido;
+  if(folioDestino === folioOrigen) { alert("❌ El platillo ya está en esta mesa."); return; }
+  
+  const item = db.DETALLE_PEDIDO.find(d => d.folio_pedido === folioOrigen && d.num_linea === numLinea);
+  if(item) item.folio_pedido = folioDestino;
+  writeDB(db);
+  
+  alert(`✅ Platillo traspasado a la Mesa ${mesaDestino} exitosamente.`);
+  document.getElementById('btn-ver-ticket').click(); 
 };
 
-window.aplicarDescuento = function(folio) {
+window.eliminarPlatilloTicket = function(folio, linea) {
+  if(!confirm("⚠️ ¿Estás seguro de quitar este platillo de la cuenta?")) return;
   const db = readDB();
-  const ped = db.PEDIDO.find(p => p.folio_pedido === folio);
-  if(ped) ped.descuento = parseFloat(document.getElementById(`input-desc-${folio}`).value || 0);
+  db.DETALLE_PEDIDO = db.DETALLE_PEDIDO.filter(d => !(d.folio_pedido === folio && d.num_linea === linea));
   writeDB(db);
   document.getElementById('btn-ver-ticket').click();
 };
 
-window.transferirPlatilloTicket = function(folioOrigen, numLinea) {
-  const mDestino = parseInt(prompt("Ingresa el número de mesa destino (1-8):"));
-  if(!mDestino || mDestino < 1 || mDestino > 8) { alert("Mesa inválida"); return; }
-  const db = readDB();
-  const pedDest = db.PEDIDO.find(p => p.id_mesa === mDestino && p.estado === 'Abierto');
-  if(!pedDest) { alert("La mesa destino debe estar abierta primero."); return; }
+window.aplicarDescuento = function(folio) {
+  const montoInput = document.getElementById(`input-desc-${folio}`).value;
+  const descuentoNum = parseFloat(montoInput);
+  if(isNaN(descuentoNum) || descuentoNum < 0) { alert("❌ Ingresa una cantidad válida."); return; }
   
-  const item = db.DETALLE_PEDIDO.find(d => d.folio_pedido === folioOrigen && d.num_linea === numLinea);
-  if(item) item.folio_pedido = pedDest.folio_pedido;
+  const db = readDB();
+  const ped = db.PEDIDO.find(p => p.folio_pedido === folio);
+  if(ped) ped.descuento = descuentoNum;
   writeDB(db);
-  alert("Traspaso completado localmente.");
-  window.volverAlMapa();
+  
+  alert("✅ Descuento registrado en el sistema local.");
+  document.getElementById('btn-ver-ticket').click();
 };
+
+document.getElementById('btn-imprimir').addEventListener('click', () => {
+  const elementoTicket = document.getElementById('ticket-contenido');
+  const folio = document.getElementById('select-ticket-folio').value;
+  const estiloOriginal = elementoTicket.style.cssText;
+  elementoTicket.style.cssText += 'width: 260px; margin: 0 auto; background: white; padding: 15px; border: none;';
+  const opcionesPDF = { margin: 5, filename: `Ticket_Folio_${folio}.pdf`, image: { type: 'jpeg', quality: 1 }, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'mm', format: [80, 200], orientation: 'portrait' } };
+  const btn = document.getElementById('btn-imprimir'); const textoOriginal = btn.innerText; btn.innerText = "⏳ Generando..."; btn.disabled = true;
+  html2pdf().set(opcionesPDF).from(elementoTicket).save().then(() => { btn.innerText = textoOriginal; btn.disabled = false; elementoTicket.style.cssText = estiloOriginal; });
+});
 
 document.getElementById('btn-cobrar').addEventListener('click', () => {
   const folio = parseInt(document.getElementById('select-ticket-folio').value);
-  if (confirm("¿Liquidar cuenta de esta mesa?")) {
-    const db = readDB();
-    const ped = db.PEDIDO.find(p => p.folio_pedido === folio);
-    if(ped) {
-      ped.estado = 'Cerrado';
-      ped.hora_cobro = new Date().toISOString();
-      ped.metodo_pago = document.getElementById('select-pago').value;
-    }
-    writeDB(db);
-    alert("Cuenta guardada y cerrada en memoria.");
-    window.volverAlMapa();
+  const spanTotal = document.getElementById('ticket-total');
+  if (!spanTotal || parseFloat(spanTotal.dataset.valor) < 0) { alert("❌ Error: Total inválido."); return; }
+  if (!confirm(`¿Cerrar y cobrar Mesa (Folio #${folio})?`)) return;
+  
+  const db = readDB();
+  const ped = db.PEDIDO.find(p => p.folio_pedido === folio);
+  if(ped) {
+    ped.estado = 'Cerrado';
+    ped.hora_cobro = new Date().toISOString();
+    ped.metodo_pago = document.getElementById('select-pago').value;
   }
+  writeDB(db);
+  
+  alert("¡Cuenta pagada y guardada localmente! ✅");
+  document.getElementById('ticket-contenido').style.display = 'none'; 
+  document.getElementById('zona-cobro').style.display = 'none'; 
+  document.getElementById('btn-imprimir').style.display = 'none';
+  
+  window.volverAlMapa();
 });
 
 function cargarEmpleados() {
   const db = readDB();
   document.getElementById('select-mesero-turno').innerHTML = db.EMPLEADO.map(e => `<option value="${e.id_empleado}">${e.nombre}</option>`).join('');
-  document.getElementById('lista-empleados').innerHTML = db.EMPLEADO.map(e => `
-    <div class="item-menu" style="border-left: 4px solid var(--neon-turquesa); display: flex; justify-content: space-between; align-items: center;">
-      <div><strong>🤵 ${e.nombre} (${e.rol})</strong><br><small style="color:var(--texto-sec)">${e.email} | Clave: ${e.password}</small></div>
-      <div style="display:flex; gap:5px;">
-        <button onclick="prepararEdicion(${e.id_empleado}, '${e.nombre}', '${e.email}', '${e.password}', '${e.rol}')" class="btn-alerta" style="padding: 5px 10px;">✏️</button>
-        <button onclick="eliminarEmpleado(${e.id_empleado})" class="btn-peligro" style="padding: 5px 10px;">🗑️</button>
-      </div>
-    </div>
-  `).join('');
+  document.getElementById('lista-empleados').innerHTML = db.EMPLEADO.map(e => `<div class="item-menu" style="border-left: 4px solid var(--neon-turquesa); display: flex; flex-direction: column; gap: 10px;"><div style="display: flex; justify-content: space-between; align-items: center;"><strong style="color: white; font-size: 1.1em;">🤵 ${e.nombre} <span style="font-size: 0.7em; color: var(--neon-naranja);">(${e.rol || 'Mesero'})</span></strong><div style="display: flex; gap: 5px;"><button onclick="prepararEdicion(${e.id_empleado}, '${e.nombre}', '${e.email || ''}', '${e.password || ''}', '${e.rol}')" class="btn-alerta" style="padding: 5px 10px; font-size: 0.8em;">✏️ Editar</button><button onclick="eliminarEmpleado(${e.id_empleado})" class="btn-peligro" style="padding: 5px 10px; font-size: 0.8em;">🗑️</button></div></div><div style="font-size: 0.85em; color: var(--texto-sec); background: rgba(0,0,0,0.3); padding: 5px; border-radius: 4px;">📧 ${e.email || 'Sin correo'} | 🔑 ${e.password || 'Sin clave'}</div></div>`).join('');
 }
 
 window.prepararEdicion = function(id, nombre, email, password, rol) {
-  window.empleadoEditandoId = id;
-  document.getElementById('input-nombre').value = nombre;
-  document.getElementById('input-email').value = email;
-  document.getElementById('input-password').value = password;
-  document.getElementById('input-admin').checked = (rol === 'Admin');
-  const btn = document.getElementById('btn-guardar-empleado');
-  btn.innerText = "💾 Actualizar Empleado";
-  btn.classList.replace('btn-exito', 'btn-alerta');
-};
+  window.empleadoEditandoId = id; document.getElementById('input-nombre').value = nombre; document.getElementById('input-email').value = email; document.getElementById('input-password').value = password; document.getElementById('input-admin').checked = (rol === 'Admin');
+  const btn = document.getElementById('btn-guardar-empleado'); btn.innerText = "💾 Actualizar Empleado"; btn.classList.replace('btn-exito', 'btn-alerta'); btn.scrollIntoView({ behavior: 'smooth' });
+}
 
 document.getElementById('form-empleado').addEventListener('submit', (e) => {
-  e.preventDefault();
+  e.preventDefault(); 
   const db = readDB();
-  const formPayload = {
-    nombre: document.getElementById('input-nombre').value,
-    email: document.getElementById('input-email').value,
-    password: document.getElementById('input-password').value,
-    rol: document.getElementById('input-admin').checked ? 'Admin' : 'Mesero'
+  const formPayload = { 
+    nombre: document.getElementById('input-nombre').value, 
+    email: document.getElementById('input-email').value, 
+    password: document.getElementById('input-password').value, 
+    rol: document.getElementById('input-admin').checked ? 'Admin' : 'Mesero' 
   };
-
-  if (window.empleadoEditandoId) {
+  
+  const btn = document.getElementById('btn-guardar-empleado'); 
+  
+  if (window.empleadoEditandoId) { 
     const emp = db.EMPLEADO.find(em => em.id_empleado === window.empleadoEditandoId);
     if(emp) Object.assign(emp, formPayload);
-    window.empleadoEditandoId = null;
-    document.getElementById('btn-guardar-empleado').classList.replace('btn-alerta', 'btn-exito');
-  } else {
+    alert("✅ Empleado actualizado localmente"); 
+    window.empleadoEditandoId = null; 
+    btn.classList.replace('btn-alerta', 'btn-exito'); 
+  } else { 
     formPayload.id_empleado = Date.now();
     db.EMPLEADO.push(formPayload);
+    alert("✅ Empleado registrado localmente"); 
   }
-
+  
   writeDB(db);
-  e.target.reset();
-  document.getElementById('btn-guardar-empleado').innerText = "➕ Guardar Empleado";
-  cargarEmpleados();
+  e.target.reset(); btn.innerText = "➕ Guardar Empleado"; cargarEmpleados();
 });
 
-window.eliminarEmpleado = function(id) {
-  if(confirm("¿Eliminar empleado?")) {
+window.eliminarEmpleado = function(id) { 
+  if(confirm("¿Estás seguro de eliminar a este empleado?")) { 
     const db = readDB();
     db.EMPLEADO = db.EMPLEADO.filter(e => e.id_empleado !== id);
     writeDB(db);
-    cargarEmpleados();
-  }
+    cargarEmpleados(); 
+  } 
 };
 
 function cargarInventario() {
   const db = readDB();
-  document.getElementById('lista-inventario').innerHTML = db.COMPONENTE.map(ing => `<div class="item-menu" style="border-left: 4px solid var(--neon-cyan);"><strong>${ing.nombre}</strong><p>Stock: ${ing.stock_actual} ${ing.unidad_medida} | Costo: $${ing.costo}</p></div>`).join('');
+  document.getElementById('lista-inventario').innerHTML = db.COMPONENTE.map(ing => { const alertaStock = ing.stock_actual <= 50 ? `<span style="color: var(--neon-rojo); font-weight: bold; font-size: 0.85em; float: right;">⚠️ BAJO</span>` : ''; return `<div class="item-menu" style="border-left: 4px solid ${ing.stock_actual <= 50 ? 'var(--neon-rojo)' : 'var(--neon-cyan)'};"><strong style="color: white; font-size: 1.1em;">${ing.nombre}</strong> ${alertaStock}<p style="margin: 5px 0; color: var(--texto-sec); font-size: 0.9em;">Stock: <span style="color: ${ing.stock_actual <= 50 ? 'var(--neon-rojo)' : 'var(--neon-cyan)'}; font-weight: bold;">${ing.stock_actual} ${ing.unidad_medida}</span></p></div>`; }).join('');
+  document.getElementById('select-receta-ingrediente').innerHTML = db.COMPONENTE.map(ing => `<option value="${ing.id_componente}">${ing.nombre} (${ing.unidad_medida})</option>`).join('');
 }
 
-document.querySelector('#form-inventario').addEventListener('submit', (e) => {
-  e.preventDefault(); const f = new FormData(e.target); const db = readDB();
+document.querySelector('#form-inventario').addEventListener('submit', (e) => { 
+  e.preventDefault(); const f = new FormData(e.target); const db = readDB(); 
   db.COMPONENTE.push({ id_componente: Date.now(), nombre: f.get('nombre'), costo: parseFloat(f.get('costo')), stock_actual: parseFloat(f.get('stock')), unidad_medida: f.get('unidad_medida') });
-  writeDB(db); e.target.reset(); cargarInventario();
+  writeDB(db); alert("Agregado Localmente"); e.target.reset(); cargarInventario(); 
 });
 
-function cargarMenu() {
+function cargarMenu() { 
   const db = readDB();
-  const cats = [...new Set(db.PLATILLO.map(p => p.categoria))];
-  document.getElementById('lista-menu').innerHTML = cats.map(cat => `<div style="background: rgba(0,0,0,0.1); padding: 10px; border-radius:8px;"><h3>${cat}</h3><div class="grid-menu">${db.PLATILLO.filter(p => p.categoria === cat).map(p => `<div class="item-menu" style="border-left: 4px solid var(--neon-turquesa);"><strong>${p.nombre}</strong><span>$${p.precio}</span></div>`).join('')}</div></div>`).join('');
+  const categoriasActuales = [...new Set(db.PLATILLO.map(p => p.categoria))]; let htmlLista = '';
+  categoriasActuales.forEach(cat => {
+    htmlLista += `<div style="background: rgba(0,0,0,0.1); border-radius: 8px; padding: 10px;"><h3 style="margin: 0 0 10px 0; color: var(--neon-naranja); border-bottom: 1px dashed var(--borde); padding-bottom: 5px;">${cat || 'Otros'}</h3><div class="grid-menu">`;
+    const platillosCat = db.PLATILLO.filter(p => p.categoria === cat);
+    platillosCat.forEach(p => { let i='🍽️'; if(p.categoria==='Bebidas') i='🍹'; if(p.categoria==='Postres') i='🍰'; if(p.categoria==='Entradas') i='🥗'; if(p.categoria==='Plato Fuerte') i='🌮'; htmlLista += `<div class="item-menu" style="border-left: 4px solid var(--neon-turquesa);"><div><div style="display: flex; justify-content: space-between;"><strong style="color: white; font-size: 1.2em;">${i} ${p.nombre}</strong><span style="color: var(--neon-cyan); font-weight: 900;">$${p.precio}</span></div><p style="margin: 8px 0; color: var(--texto-sec); font-size: 0.85em; font-style: italic;">"${p.descripcion}"</p></div></div>`; });
+    htmlLista += `</div></div>`;
+  });
+  document.getElementById('lista-menu').innerHTML = htmlLista; 
 }
 
-document.querySelector('#form-platillo').addEventListener('submit', (e) => {
+document.querySelector('#form-platillo').addEventListener('submit', (e) => { 
   e.preventDefault(); const f = new FormData(e.target); const db = readDB();
-  db.PLATILLO.push({ id_platillo: Date.now(), nombre: f.get('nombre'), descripcion: f.get('descripcion'), precio: parseFloat(f.get('precio')), categoria: f.get('categoria') });
-  writeDB(db); e.target.reset(); cargarMenu(); cargarDropdownsPedidos();
+  const p = parseFloat(f.get('precio')); if(p<=0){ alert("Error"); return; } 
+  db.PLATILLO.push({ id_platillo: Date.now(), nombre: f.get('nombre'), descripcion: f.get('descripcion'), precio: p, categoria: f.get('categoria') });
+  writeDB(db); alert("Platillo Guardado Localmente"); e.target.reset(); cargarMenu(); cargarDropdownsPedidos(); 
 });
 
-document.getElementById('btn-generar-reporte').addEventListener('click', () => {
+document.getElementById('btn-generar-reporte').addEventListener('click', () => { 
   const db = readDB();
-  const cerrados = db.PEDIDO.filter(p => p.estado === 'Cerrado');
-  let total = 0;
+  const p = db.PEDIDO.filter(x => x.estado === 'Cerrado'); 
+  if(!p || p.length===0){ alert("Sin datos de mesas cerradas localmente"); return; } 
+  const f = p.map(x => x.folio_pedido); 
+  const d = db.DETALLE_PEDIDO.filter(x => f.includes(x.folio_pedido)); 
+  let t = 0; 
+  d.forEach(x => t += x.cantidad_servida * x.precio_unitario); 
   
-  cerrados.forEach(p => {
-    const lines = db.DETALLE_PEDIDO.filter(d => d.folio_pedido === p.folio_pedido);
-    let sub = 0;
-    lines.forEach(l => sub += l.cantidad_servida * l.precio_unitario);
-    total += Math.max(0, sub - parseFloat(p.descuento || 0));
-  });
+  p.forEach(ped => t -= parseFloat(ped.descuento || 0));
 
-  document.getElementById('rep-total').innerText = `$${total.toFixed(2)}`;
-  document.getElementById('rep-mesas').innerText = cerrados.length;
-  document.getElementById('contenido-reporte').style.display = 'block';
+  document.getElementById('rep-total').innerText = `$${Math.max(0, t).toFixed(2)}`; 
+  document.getElementById('rep-mesas').innerText = p.length; 
+  document.getElementById('contenido-reporte').style.display='block'; 
 });
 
 document.querySelector('#form-login').addEventListener('submit', (e) => {
-  e.preventDefault();
+  e.preventDefault(); const emailInput = e.target.email.value; const passInput = e.target.password.value;
   const db = readDB();
-  const user = db.EMPLEADO.find(em => em.email === e.target.email.value && em.password === e.target.password.value);
   
-  if (!user) { alert("❌ Credenciales incorrectas"); return; }
+  const usuarioActivo = db.EMPLEADO.find(em => em.email === emailInput && em.password === passInput);
   
-  localStorage.setItem('pos_local_user', JSON.stringify(user));
-  esAdmin = (user.rol === 'Admin');
+  if (!usuarioActivo) { alert("❌ Credenciales incorrectas o usuario inexistente"); return; }
+  
+  localStorage.setItem('pos_local_user', JSON.stringify(usuarioActivo)); 
+  esAdmin = (usuarioActivo.rol === 'Admin'); 
   arrancarApp();
 });
 
-document.getElementById('btn-logout').addEventListener('click', () => {
-  localStorage.removeItem('pos_local_user');
-  document.getElementById('seccion-login').style.display = 'block';
-  document.getElementById('seccion-sistema').style.display = 'none';
+document.getElementById('btn-logout').addEventListener('click', () => { 
+  localStorage.removeItem('pos_local_user'); 
+  document.getElementById('seccion-login').style.display = 'block'; 
+  document.getElementById('seccion-sistema').style.display = 'none'; 
 });
 
 function arrancarApp() {
-  document.getElementById('seccion-login').style.display = 'none';
-  document.getElementById('seccion-sistema').style.display = 'block';
-  
-  if (esAdmin) {
-    document.getElementById('nav-menu').style.display = 'block';
-    document.getElementById('nav-inventario').style.display = 'block';
-    document.getElementById('nav-personal').style.display = 'block';
-    document.getElementById('nav-reportes').style.display = 'block';
-  } else {
-    document.getElementById('nav-menu').style.display = 'none';
-    document.getElementById('nav-inventario').style.display = 'none';
-    document.getElementById('nav-personal').style.display = 'none';
-    document.getElementById('nav-reportes').style.display = 'none';
-  }
-  cargarEmpleados(); cargarCategorias(); cargarDropdownsPedidos(); cargarMenu(); cargarInventario();
+  document.getElementById('seccion-login').style.display = 'none'; document.getElementById('seccion-sistema').style.display = 'block';
+  if (esAdmin) { document.getElementById('nav-menu').style.display = 'block'; document.getElementById('nav-inventario').style.display = 'block'; document.getElementById('nav-personal').style.display = 'block'; document.getElementById('nav-reportes').style.display = 'block'; } 
+  else { document.getElementById('nav-menu').style.display = 'none'; document.getElementById('nav-inventario').style.display = 'none'; document.getElementById('nav-personal').style.display = 'none'; document.getElementById('nav-reportes').style.display = 'none'; }
+  cargarEmpleados(); cargarCategorias(); cargarDropdownsPedidos(); cargarMenu(); cargarInventario(); 
 }
 
-const sesionLocal = localStorage.getItem('pos_local_user');
-if (sesionLocal) {
-  const u = JSON.parse(sesionLocal);
-  esAdmin = (u.rol === 'Admin');
-  arrancarApp();
+const sesionGuardada = localStorage.getItem('pos_local_user');
+if (sesionGuardada) { 
+  const usuarioActivo = JSON.parse(sesionGuardada); 
+  esAdmin = (usuarioActivo.rol === 'Admin'); 
+  arrancarApp(); 
 } else {
-  readDB();
+  readDB(); 
 }
