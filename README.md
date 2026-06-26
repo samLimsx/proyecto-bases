@@ -309,6 +309,22 @@ El desarrollo del sistema de gestión comercial **Fast Restaurant**, diseñado y
 * **Seguridad y Escalabilidad Multi-Inquilino (SaaS):** Mediante la implementación de políticas avanzadas de Seguridad a Nivel de Fila (`Row Level Security`), la base de datos centralizada garantiza un aislamiento absoluto de los registros comerciales para múltiples sucursales de restaurantes. Esto le permite al dueño expandir su modelo de negocio de forma segura en la nube sin comprometer la privacidad informática ni mezclar las finanzas de las diferentes sedes operativas.
 * **Perspectivas de Trabajo Futuro:** Como ruta de mejora del software a mediano plazo, proyectamos la integración de un módulo inteligente para la predicción de compras basado en algoritmos de aprendizaje automático. Esto permitirá que el sistema analice los historiales de ventas de la base de datos para sugerir automáticamente las órdenes de compra necesarias a los proveedores antes de que ocurra una alerta de desabasto, optimizando por completo los flujos de capital del restaurante.
 
+##  10. Versión Estática y Autónoma (Entorno de Pruebas)
+
+Para facilitar la evaluación del proyecto en entornos locales, sin conectividad a internet o de forma independiente a la base de datos en la nube, se desarrolló una arquitectura alternativa **totalmente del lado del cliente (Client-Side)** que se encuentra alojada en la rama `version-estatica`.
+
+### Características Clave:
+* **Persistencia con LocalStorage:** El esquema relacional de las tablas (usuarios, mesas activas, comandas de cocina, inventario y reportes financieros) se simula y se guarda directamente en la memoria del navegador del usuario de forma persistente.
+* **Cero Dependencias Externas:** Se removió por completo la capa de red con Supabase, convirtiendo al software en un sistema autónomo, veloz e inmune a la expiración de llaves API o bloqueos de red escolar.
+* **Portabilidad Absoluta:** Gracias a la configuración de rutas relativas en Vite, la carpeta de producción compilada (`dist`) puede descargarse y ejecutarse localmente abriendo directamente el archivo `index.html` con un doble clic, sin requerir internet ni consolas de comandos.
+
+### Acceso y Credenciales Locales:
+* **Demo en Vivo (Versión Estática):** [Enlace de Vista Previa en Vercel](https://proyecto-bases-git-version-estatica-samlimsxs-projects.vercel.app/)
+
+> 🔑 **Credenciales precargadas en memoria interna:**
+> * **Rol Administrador:** `admin@prueba.com` | Contraseña: `admin` *(Acceso total a almacén, finanzas y edición)*
+> * **Rol Mesero:** `roberto@restaurante.com` | Contraseña: `123` *(Acceso exclusivo al mapa del salón y caja)*
+
 ---
 
 ### 🔗 Enlaces del Proyecto
