@@ -319,7 +319,7 @@ Para facilitar la evaluación del proyecto en entornos locales, sin conectividad
 * **Portabilidad Absoluta:** Gracias a la configuración de rutas relativas en Vite, la carpeta de producción compilada (`dist`) puede descargarse y ejecutarse localmente abriendo directamente el archivo `index.html` con un doble clic, sin requerir internet ni consolas de comandos.
 
 ### Acceso y Credenciales Locales:
-* **Demo en Vivo (Versión Estática):** [Enlace de Vista Previa en Vercel](https://proyecto-bases-git-version-estatica-samlimsxs-projects.vercel.app/)
+* **Demo en Vivo (Versión Estática):** [Enlace de Vista Previa:](https://samlimsx.github.io/proyecto-bases/)
 
 > 🔑 **Credenciales precargadas en memoria interna:**
 > * **Rol Administrador:** `admin@prueba.com` | Contraseña: `admin` *(Acceso total a almacén, finanzas y edición)*
@@ -330,6 +330,6 @@ Para facilitar la evaluación del proyecto en entornos locales, sin conectividad
 ### 🔗 Enlaces del Proyecto
 * **Código Fuente:** [Repositorio en GitHub](https://github.com/samLimsx/proyecto-bases.git)
 * **Demo en Vivo:** [Página Web en Vercel](https://proyecto-bases-snowy.vercel.app/)
-* **Demo estatica en Vivo:** [Página Web estatica en Vercel](https://proyecto-bases-git-version-estatica-samlimsxs-projects.vercel.app/)
+* **Demo estatica en Vivo:** [Página Web estatica en Github Pages:](https://samlimsx.github.io/proyecto-bases/)
 * **Usuario de prueba:** `admin@prueba.com`
 * **Contraseña:** `admin`
