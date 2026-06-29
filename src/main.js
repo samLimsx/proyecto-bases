@@ -281,13 +281,13 @@ function dibujarMapaMesas(pedidosAbiertos) {
     if (mesaOcupada) { 
       html += `
         <div class="mesa-visual mesa-ocupada" onclick="seleccionarMesaOcupada(${pos.id}, ${mesaOcupada.folio_pedido})" style="position: absolute; top: ${pos.top}; left: ${pos.left}; cursor: pointer; text-align: center; width: 90px; transform: translate(-50%, -50%);">
-          <img src="/mesa.png" alt="Mesa" style="width: 100%; filter: drop-shadow(0px 0px 8px rgba(255, 56, 96, 0.9));">
+          <img src="./mesa.png" alt="Mesa" style="width: 100%; filter: drop-shadow(0px 0px 8px rgba(255, 56, 96, 0.9));">
           <div style="font-weight: bold; color: white; background: rgba(0,0,0,0.6); border-radius: 4px;">Mesa ${pos.id}</div>
         </div>`; 
     } else { 
       html += `
         <div class="mesa-visual mesa-libre" onclick="abrirMesaRapida(${pos.id})" style="position: absolute; top: ${pos.top}; left: ${pos.left}; cursor: pointer; text-align: center; width: 90px; transform: translate(-50%, -50%);">
-          <img src="/mesa.png" alt="Mesa" style="width: 100%; opacity: 0.6; filter: drop-shadow(0px 0px 8px rgba(16, 185, 129, 0.9));">
+          <img src="./mesa.png" alt="Mesa" style="width: 100%; opacity: 0.6; filter: drop-shadow(0px 0px 8px rgba(16, 185, 129, 0.9));">
           <div style="font-weight: bold; color: white; background: rgba(0,0,0,0.6); border-radius: 4px;">Mesa ${pos.id}</div>
         </div>`; 
     }
